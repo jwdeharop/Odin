@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{EBDBDA6A-4C7E-20A5-7AFA-2A8948DB4893}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Odin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
