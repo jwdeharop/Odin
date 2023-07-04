@@ -36,6 +36,8 @@ protected:
 		UInputAction* InputActionLook = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionCrouch = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
+		UInputAction* InputActionJump = nullptr;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;

@@ -39,6 +39,7 @@ void AOD_BaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	EnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &AOD_BaseCharacter::Move);
 	EnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &AOD_BaseCharacter::Look);
 	EnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &AOD_BaseCharacter::BaseCrouch);
+	EnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &AOD_BaseCharacter::Jump);
 }
 
 void AOD_BaseCharacter::BeginPlay()
