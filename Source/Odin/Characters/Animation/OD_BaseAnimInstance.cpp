@@ -36,4 +36,5 @@ void UOD_BaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 	bShouldMove = bHasVelocity && bHasGroundSpeed;
 	bIsFalling = CharacterMovement->IsFalling();
+	bIsCrouching = BaseCharacter->bIsCrouched;
 }

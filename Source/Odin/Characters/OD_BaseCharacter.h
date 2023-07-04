@@ -18,6 +18,11 @@ class ODIN_API AOD_BaseCharacter : public ACharacter
 public:
 	AOD_BaseCharacter();
 
+private:
+	float MaxWalkSpeed = 0.f;
+	float MaxCrouchSpeed = 0.f;
+	bool bIsCrouching = false;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 		USpringArmComponent* CameraBoom = nullptr;
@@ -29,9 +34,14 @@ protected:
 		UInputAction* InputActionMove = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionLook = nullptr;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
+		UInputAction* InputActionCrouch = nullptr;
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void BeginPlay() override;
+
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+	void BaseCrouch(const FInputActionValue& InputActionValue);
 
 };

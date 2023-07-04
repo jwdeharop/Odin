@@ -2,7 +2,14 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+
+namespace AOD_BaseCharacter_Consts
+{
+	constexpr float ConstMaxCrouchSpeed = 300.f;
+	constexpr float ConstMaxSpeed = 600.f;
+}
 
 AOD_BaseCharacter::AOD_BaseCharacter() : Super()
 {
@@ -31,6 +38,23 @@ void AOD_BaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	EnhancedInputComponent->BindAction(InputActionMove, ETriggerEvent::Triggered, this, &AOD_BaseCharacter::Move);
 	EnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &AOD_BaseCharacter::Look);
+	EnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &AOD_BaseCharacter::BaseCrouch);
+}
+
+void AOD_BaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (const UCharacterMovementComponent* MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent()))
+	{
+		MaxWalkSpeed = MovementComponent->GetMaxSpeed();
+		MaxCrouchSpeed = MovementComponent->MaxWalkSpeedCrouched;
+	}
+	else
+	{
+		MaxWalkSpeed = AOD_BaseCharacter_Consts::ConstMaxSpeed;
+		MaxCrouchSpeed = AOD_BaseCharacter_Consts::ConstMaxCrouchSpeed;
+	}
 }
 
 void AOD_BaseCharacter::Move(const FInputActionValue& InputActionValue)
@@ -74,3 +98,17 @@ void AOD_BaseCharacter::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
+void AOD_BaseCharacter::BaseCrouch(const FInputActionValue& InputActionValue)
+{
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	MovementComponent->bWantsToCrouch = !MovementComponent->bWantsToCrouch;
+
+	if (MovementComponent->bWantsToCrouch)
+	{
+		Crouch(true);
+	}
+	else
+	{
+		UnCrouch(false);
+	}
+}

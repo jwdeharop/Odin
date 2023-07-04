@@ -13,7 +13,8 @@ class ODIN_API UOD_BaseAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 protected:
-
+	UPROPERTY(BlueprintReadOnly)
+		bool bIsCrouching = false;
 	UPROPERTY(BlueprintReadOnly)
 		float GroundSpeed = 0.f;
 	UPROPERTY(BlueprintReadOnly)
