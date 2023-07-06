@@ -18,5 +18,4 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI")
 		UAISenseConfig_Sight* SightConfig = nullptr;
 		
-	
 };

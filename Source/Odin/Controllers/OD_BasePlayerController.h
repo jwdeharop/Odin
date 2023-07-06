@@ -11,6 +11,5 @@ class ODIN_API AOD_BasePlayerController : public APlayerController, public IGene
 	GENERATED_BODY()
 
 protected:
-
 	virtual FGenericTeamId GetGenericTeamId() const override;
 };

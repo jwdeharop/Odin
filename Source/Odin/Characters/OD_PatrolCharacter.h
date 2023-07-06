@@ -1,29 +1,33 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Characters/OD_BaseAICharacter.h"
 #include "OD_PatrolCharacter.generated.h"
 
+class USplineComponent;
+
 UCLASS()
-class ODIN_API AOD_PatrolCharacter : public ACharacter
+class ODIN_API AOD_PatrolCharacter : public AOD_BaseAICharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AOD_PatrolCharacter();
 
+	void FillSplinePoints();
+	const TArray<FVector>& GetSplinePoints() const;
+	bool IsUsingTorch() const;
+
+private:
+	TArray<FVector> SplinePoints;
+
 protected:
-	// Called when the game starts or when spawned
+	UPROPERTY(EditInstanceOnly, Category = "AI | Patrol")
+		USplineComponent* SplineComponent = nullptr;
+	// For now this is set here, will be set by inventory in the future.
+	UPROPERTY(EditInstanceOnly, Category = "AI | Patrol")
+		bool bIsUsingTorch = false;
+	
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };

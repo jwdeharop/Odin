@@ -4,7 +4,7 @@
 #include "Animation/AnimInstance.h"
 #include "OD_BaseAnimInstance.generated.h"
 
-class AOD_BaseCharacter;
+class AOD_BaseTeamCharacter;
 class UPawnMovementComponent;
 
 UCLASS()
@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsFalling = false;
 	
-	TWeakObjectPtr<AOD_BaseCharacter> BaseCharacter;
+	TWeakObjectPtr<AOD_BaseTeamCharacter> BaseCharacter;
 	TWeakObjectPtr<UPawnMovementComponent> CharacterMovement;
 
 	virtual void NativeBeginPlay() override;

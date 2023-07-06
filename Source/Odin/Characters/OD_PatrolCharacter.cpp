@@ -1,34 +1,38 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "OD_PatrolCharacter.h"
 
-// Sets default values
-AOD_PatrolCharacter::AOD_PatrolCharacter()
-{
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+#include "Components/SplineComponent.h"
 
+AOD_PatrolCharacter::AOD_PatrolCharacter() : Super()
+{
+	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
+	SplineComponent->SetupAttachment(RootComponent);
+
+#if WITH_EDITOR
+	SplineComponent->bDrawDebug = true;
+#endif
 }
 
-// Called when the game starts or when spawned
+void AOD_PatrolCharacter::FillSplinePoints()
+{
+	for (int32 Index = 0; Index <= SplineComponent->GetNumberOfSplinePoints(); ++Index)
+	{
+		SplinePoints.Add(SplineComponent->GetLocationAtSplinePoint(Index, ESplineCoordinateSpace::World));
+	}
+}
+
+const TArray<FVector>& AOD_PatrolCharacter::GetSplinePoints() const
+{
+	return SplinePoints;
+}
+
+bool AOD_PatrolCharacter::IsUsingTorch() const
+{
+	return bIsUsingTorch;
+}
+
 void AOD_PatrolCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	FillSplinePoints();
 }
-
-// Called every frame
-void AOD_PatrolCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void AOD_PatrolCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-

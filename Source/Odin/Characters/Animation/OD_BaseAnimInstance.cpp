@@ -1,5 +1,5 @@
 #include "Characters/Animation/OD_BaseAnimInstance.h"
-#include "Characters/OD_BaseCharacter.h"
+#include "Characters/OD_BaseTeamCharacter.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -12,7 +12,7 @@ void UOD_BaseAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 
-	BaseCharacter = Cast<AOD_BaseCharacter>(GetOwningActor());
+	BaseCharacter = Cast<AOD_BaseTeamCharacter>(GetOwningActor());
 	CharacterMovement = BaseCharacter.IsValid() ? BaseCharacter->GetMovementComponent() : nullptr;
 }
 
