@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Odin.h"
+#include "CoreMinimal.h"
 #include "AIController.h"
 #include "OD_BaseAIController.generated.h"
 
