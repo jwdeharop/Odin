@@ -1,6 +1,12 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
+
+UENUM(BlueprintType)
+enum class EOD_SelfDistinction : uint8
+{
+	None = 0,
+	Player,
+	NPC
+};
 

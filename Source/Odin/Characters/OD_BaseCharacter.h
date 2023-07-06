@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "GameFramework/Character.h"
+#include "Characters/OD_BaseTeamCharacter.h"
 #include "OD_BaseCharacter.generated.h"
 
 class UCameraComponent;
@@ -11,7 +11,7 @@ class UInputAction;
 class UInputMappingContext;
 
 UCLASS()
-class ODIN_API AOD_BaseCharacter : public ACharacter
+class ODIN_API AOD_BaseCharacter : public AOD_BaseTeamCharacter
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,6 @@ public:
 private:
 	float MaxWalkSpeed = 0.f;
 	float MaxCrouchSpeed = 0.f;
-	bool bIsCrouching = false;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
