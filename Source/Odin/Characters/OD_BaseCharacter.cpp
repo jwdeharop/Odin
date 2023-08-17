@@ -1,7 +1,11 @@
 #include "Characters/OD_BaseCharacter.h"
+
+#include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Actors/OD_BasePlayerState.h"
+#include "Components/OD_AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -58,6 +62,20 @@ void AOD_BaseCharacter::BeginPlay()
 	}
 }
 
+void AOD_BaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	InitAbilitySystemComponent();
+}
+
+void AOD_BaseCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	InitAbilitySystemComponent();
+}
+
 void AOD_BaseCharacter::Move(const FInputActionValue& InputActionValue)
 {
 	if (!Controller)
@@ -111,5 +129,18 @@ void AOD_BaseCharacter::BaseCrouch(const FInputActionValue& InputActionValue)
 	else
 	{
 		UnCrouch(false);
+	}
+}
+
+void AOD_BaseCharacter::InitAbilitySystemComponent()
+{
+	AOD_BasePlayerState* PlayerState = GetPlayerState<AOD_BasePlayerState>();
+	if (!PlayerState)
+		return;
+
+	AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this);
 	}
 }

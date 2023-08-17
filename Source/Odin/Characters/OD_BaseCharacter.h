@@ -9,6 +9,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputAction;
 class UInputMappingContext;
+class UOD_AbilitySystemComponent;
 
 UCLASS()
 class ODIN_API AOD_BaseCharacter : public ACharacter
@@ -38,12 +39,16 @@ protected:
 		UInputAction* InputActionCrouch = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionJump = nullptr;
+
+	TWeakObjectPtr<UOD_AbilitySystemComponent> AbilitySystemComponent = nullptr;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 	void BaseCrouch(const FInputActionValue& InputActionValue);
-
+	void InitAbilitySystemComponent();
 };
