@@ -1,5 +1,4 @@
 #include "Characters/OD_BaseCharacter.h"
-
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/OD_CompInteraction.h"
@@ -145,7 +144,7 @@ void AOD_BaseCharacter::InitAbilitySystemComponent()
 	if (!MyPlayerState)
 		return;
 
-	AbilitySystemComponent = MyPlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent = Cast<UOD_AbilitySystemComponent>(MyPlayerState->GetAbilitySystemComponent());
 	if (AbilitySystemComponent.IsValid())
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(MyPlayerState, this);
