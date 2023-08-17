@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UInputAction;
 class UInputMappingContext;
 class UOD_AbilitySystemComponent;
+class UOD_CompInteraction;
 
 UCLASS()
 class ODIN_API AOD_BaseCharacter : public ACharacter
@@ -18,11 +19,13 @@ class ODIN_API AOD_BaseCharacter : public ACharacter
 
 public:
 	AOD_BaseCharacter();
+	bool IsHoldingItem() const { return bIsHoldingItem; }
 
 private:
 	float MaxWalkSpeed = 0.f;
 	float MaxCrouchSpeed = 0.f;
 	bool bIsCrouching = false;
+	bool bIsHoldingItem = false;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -39,11 +42,15 @@ protected:
 		UInputAction* InputActionCrouch = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionJump = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Interact")
+		UOD_CompInteraction* CompInteraction = nullptr;
+
 
 	TWeakObjectPtr<UOD_AbilitySystemComponent> AbilitySystemComponent = nullptr;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 

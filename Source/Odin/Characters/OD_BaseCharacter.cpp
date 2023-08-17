@@ -2,6 +2,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/OD_CompInteraction.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Actors/OD_BasePlayerState.h"
@@ -18,9 +19,9 @@ namespace AOD_BaseCharacter_Consts
 AOD_BaseCharacter::AOD_BaseCharacter() : Super()
 {
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
-	CameraBoom->SetupAttachment(RootComponent);
-
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Follow Camera"));
+	CompInteraction = CreateDefaultSubobject<UOD_CompInteraction>(TEXT("Comp Interaction"));
+	CameraBoom->SetupAttachment(RootComponent);
 	FollowCamera->SetupAttachment(CameraBoom);
 }
 
@@ -60,6 +61,12 @@ void AOD_BaseCharacter::BeginPlay()
 		MaxWalkSpeed = AOD_BaseCharacter_Consts::ConstMaxSpeed;
 		MaxCrouchSpeed = AOD_BaseCharacter_Consts::ConstMaxCrouchSpeed;
 	}
+}
+
+void AOD_BaseCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
+{
+	Super::GetActorEyesViewPoint(OutLocation, OutRotation);
+	OutRotation = FollowCamera->GetComponentRotation();
 }
 
 void AOD_BaseCharacter::PossessedBy(AController* NewController)
