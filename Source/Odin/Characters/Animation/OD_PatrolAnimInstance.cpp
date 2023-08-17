@@ -5,13 +5,8 @@ void UOD_PatrolAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	// Only gather information if character is valid.
-	if (!BaseCharacter.IsValid() || !CharacterMovement.IsValid())
-		return;
-
-	const TWeakObjectPtr<AOD_PatrolCharacter> PatrolCharacter = Cast<AOD_PatrolCharacter>(BaseCharacter.Get());
-	if (!PatrolCharacter.IsValid())
-		return;
-
-	bIsUsingTorch = PatrolCharacter->IsUsingTorch();
+	if (const AOD_PatrolCharacter* const PatrolCharacter = Cast<AOD_PatrolCharacter>(BaseCharacter.Get()))
+	{
+		bIsUsingTorch = PatrolCharacter->IsUsingTorch();
+	}
 }

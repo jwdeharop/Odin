@@ -23,6 +23,8 @@ protected:
 		bool bShouldMove = false;
 	UPROPERTY(BlueprintReadOnly)
 		bool bIsFalling = false;
+	UPROPERTY(BlueprintReadOnly)
+		bool bIsHoldingItem = false;
 	
 	TWeakObjectPtr<AOD_BaseTeamCharacter> BaseCharacter;
 	TWeakObjectPtr<UPawnMovementComponent> CharacterMovement;

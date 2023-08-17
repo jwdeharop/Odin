@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Odin.h"
+#include "CoreMinimal.h"
 #include "Characters/OD_BaseTeamCharacter.h"
 #include "OD_BaseAICharacter.generated.h"
 

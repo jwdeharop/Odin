@@ -1,4 +1,5 @@
 #include "Characters/Animation/OD_BaseAnimInstance.h"
+#include "Characters/OD_BaseCharacter.h"
 #include "Characters/OD_BaseTeamCharacter.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -37,4 +38,9 @@ void UOD_BaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bShouldMove = bHasVelocity && bHasGroundSpeed;
 	bIsFalling = CharacterMovement->IsFalling();
 	bIsCrouching = BaseCharacter->bIsCrouched;
+
+	if (const AOD_BaseCharacter* OwnerCharacter = Cast<AOD_BaseCharacter>(BaseCharacter))
+	{
+		bIsHoldingItem = OwnerCharacter->IsHoldingItem();
+	}
 }
