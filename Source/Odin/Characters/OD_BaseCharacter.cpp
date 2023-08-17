@@ -141,13 +141,13 @@ void AOD_BaseCharacter::BaseCrouch(const FInputActionValue& InputActionValue)
 
 void AOD_BaseCharacter::InitAbilitySystemComponent()
 {
-	AOD_BasePlayerState* PlayerState = GetPlayerState<AOD_BasePlayerState>();
-	if (!PlayerState)
+	AOD_BasePlayerState* MyPlayerState = GetPlayerState<AOD_BasePlayerState>();
+	if (!MyPlayerState)
 		return;
 
-	AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent = MyPlayerState->GetAbilitySystemComponent();
 	if (AbilitySystemComponent.IsValid())
 	{
-		AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this);
+		AbilitySystemComponent->InitAbilityActorInfo(MyPlayerState, this);
 	}
 }
