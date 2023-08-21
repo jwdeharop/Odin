@@ -2,6 +2,7 @@
 
 #include "OD_CollisionChannels.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/OD_InteractionInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UOD_CompInteraction::UOD_CompInteraction() : Super()
@@ -19,16 +20,32 @@ void UOD_CompInteraction::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CanInteractWithAnyObject())
+	FHitResult OutHit;
+	if (CanInteractWithAnyObject(OutHit))
 	{
-		// Notify the object that is being interacted with.
+		CurrentInteractActor = OutHit.GetActor();
+		if (IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get()))
+		{
+			// Notify the object that is being interacted with.
+			constexpr bool bCanPrepareInteraction = true;
+			InteractionInterface->PrepareInteraction(bCanPrepareInteraction);
+			return;
+		}
+	}
+
+	if (CurrentInteractActor.IsValid())
+	{
+		ResetInteraction(OutHit.GetActor());
 	}
 }
 
-bool UOD_CompInteraction::CanInteractWithAnyObject() const
+bool UOD_CompInteraction::CanInteractWithAnyObject(FHitResult& OutHit) const
 {
-	FHitResult OutHit;
 	if (!LineTraceSingle(OutHit))
+		return false;
+
+	// We dont want to interact again with the same object.
+	if (OutHit.GetActor() == CurrentInteractActor)
 		return false;
 
 	return true;
@@ -49,4 +66,18 @@ bool UOD_CompInteraction::LineTraceSingle(FHitResult& OutHit) const
 	constexpr bool bTraceComplex = true;
 	const FCollisionQueryParams CollisionParameters(NAME_None, bTraceComplex, OwnerCharacter.Get());
 	return World->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, COLLISION_CHANNEL(InteractRaycast), CollisionParameters);
+}
+
+void UOD_CompInteraction::ResetInteraction(const AActor* ActorToReset)
+{
+	if (ActorToReset != CurrentInteractActor)
+	{
+		if (IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get()))
+		{
+			// Notify the object that the interaction has ended.
+			constexpr bool bCanPrepareInteraction = false;
+			InteractionInterface->PrepareInteraction(bCanPrepareInteraction);
+		}
+		CurrentInteractActor.Reset();
+	}
 }

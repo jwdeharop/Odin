@@ -19,12 +19,14 @@ protected:
 		float InteractDistance = 300.f;
 
 	TWeakObjectPtr<ACharacter> OwnerCharacter = nullptr;
+	TWeakObjectPtr<AActor> CurrentInteractActor = nullptr;
 
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	bool CanInteractWithAnyObject() const;
+	bool CanInteractWithAnyObject(FHitResult& OutHit) const;
 	bool LineTraceSingle(FHitResult& OutHit) const;
+	void ResetInteraction(const AActor* ActorToReset);
 
 };
