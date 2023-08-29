@@ -3,11 +3,19 @@
 #include "OD_CollisionChannels.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/OD_InteractionInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
 
-UOD_CompInteraction::UOD_CompInteraction() : Super()
+UOD_CompInteraction::UOD_CompInteraction(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UOD_CompInteraction::StartInteraction()
+{
+	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
+	if (!InteractionInterface)
+		return;
+
+	InteractionInterface->StartInteraction();
 }
 
 void UOD_CompInteraction::BeginPlay()

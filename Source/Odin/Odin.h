@@ -6,11 +6,11 @@
 
 
 UENUM(BlueprintType)
-enum class EOD_PickUpType : uint8
+enum class EOD_InventoryType : uint8
 {
 	None = 0,
-	LWeapon, // Swords, etc etc
-	RWeapon, // bows, etc etc
+	RWeapon, // Swords
+	LWeapon, // Bows
 	Shield,
 	Consumable,
 

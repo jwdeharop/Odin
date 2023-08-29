@@ -14,8 +14,6 @@ class IOD_InteractionInterface
 	GENERATED_BODY()
 
 public:
-
 	virtual void PrepareInteraction(bool bCanInteract) {};
 	virtual void StartInteraction() {};
-	virtual void EndInteraction() {};
 };

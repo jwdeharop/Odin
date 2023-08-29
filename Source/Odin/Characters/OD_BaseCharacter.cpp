@@ -8,6 +8,8 @@
 #include "Components/OD_AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Interfaces/OD_InteractionInterface.h"
+#include "Libraries/OD_NetLibrary.h"
 
 namespace AOD_BaseCharacter_Consts
 {
@@ -15,13 +17,21 @@ namespace AOD_BaseCharacter_Consts
 	constexpr float ConstMaxSpeed = 600.f;
 }
 
-AOD_BaseCharacter::AOD_BaseCharacter() : Super()
+AOD_BaseCharacter::AOD_BaseCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Follow Camera"));
 	CompInteraction = CreateDefaultSubobject<UOD_CompInteraction>(TEXT("Comp Interaction"));
 	CameraBoom->SetupAttachment(RootComponent);
 	FollowCamera->SetupAttachment(CameraBoom);
+}
+
+void AOD_BaseCharacter::StartInteraction()
+{
+	if (CompInteraction)
+	{
+		CompInteraction->StartInteraction();
+	}
 }
 
 void AOD_BaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -44,6 +54,7 @@ void AOD_BaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	EnhancedInputComponent->BindAction(InputActionLook, ETriggerEvent::Triggered, this, &AOD_BaseCharacter::Look);
 	EnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &AOD_BaseCharacter::BaseCrouch);
 	EnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &AOD_BaseCharacter::Jump);
+	EnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Completed, this, &AOD_BaseCharacter::StartInteraction);
 }
 
 void AOD_BaseCharacter::BeginPlay()
@@ -59,6 +70,21 @@ void AOD_BaseCharacter::BeginPlay()
 	{
 		MaxWalkSpeed = AOD_BaseCharacter_Consts::ConstMaxSpeed;
 		MaxCrouchSpeed = AOD_BaseCharacter_Consts::ConstMaxCrouchSpeed;
+	}
+}
+
+void AOD_BaseCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// CompInteract will only exist on the client sides.
+	if (!UOD_NetLibrary::IsDedicatedServer(this))
+		return;
+
+	if (!IsLocallyControlled())
+	{
+		CompInteraction->DestroyComponent();
+		CompInteraction = nullptr;
 	}
 }
 
@@ -149,4 +175,10 @@ void AOD_BaseCharacter::InitAbilitySystemComponent()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(MyPlayerState, this);
 	}
+}
+
+UOD_CompInventory* AOD_BaseCharacter::GetCompInventory()
+{
+	AOD_BasePlayerState* ODPlayerState = GetPlayerState<AOD_BasePlayerState>();
+	return ODPlayerState ? ODPlayerState->GetCompInventory() : nullptr;
 }

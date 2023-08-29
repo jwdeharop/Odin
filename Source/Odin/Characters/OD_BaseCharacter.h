@@ -11,6 +11,7 @@ class UInputAction;
 class UInputMappingContext;
 class UOD_AbilitySystemComponent;
 class UOD_CompInteraction;
+class UOD_CompInventory;
 
 UCLASS()
 class ODIN_API AOD_BaseCharacter : public ACharacter
@@ -18,8 +19,12 @@ class ODIN_API AOD_BaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	AOD_BaseCharacter();
+	AOD_BaseCharacter(const FObjectInitializer& ObjectInitializer);
+
+	void StartInteraction();
+
 	bool IsHoldingItem() const { return bIsHoldingItem; }
+	UOD_CompInventory* GetCompInventory();
 
 private:
 	float MaxWalkSpeed = 0.f;
@@ -42,14 +47,16 @@ protected:
 		UInputAction* InputActionCrouch = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionJump = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
+		UInputAction* InputActionInteract = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Interact")
 		UOD_CompInteraction* CompInteraction = nullptr;
-
 
 	TWeakObjectPtr<UOD_AbilitySystemComponent> AbilitySystemComponent = nullptr;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;

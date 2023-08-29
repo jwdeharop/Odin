@@ -12,8 +12,9 @@ class ODIN_API UOD_CompInteraction : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UOD_CompInteraction();
-
+	UOD_CompInteraction(const FObjectInitializer& ObjectInitializer);
+	void StartInteraction();
+	AActor* GetCurrentInteractActor() { return CurrentInteractActor.Get(); };
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Interact")
 		float InteractDistance = 300.f;
