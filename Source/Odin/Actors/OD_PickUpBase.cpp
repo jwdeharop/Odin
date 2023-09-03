@@ -36,23 +36,13 @@ void AOD_PickUpBase::StartInteraction()
 		FOD_InventoryValue Item;
 		Item.ItemName = BaseItem.GetDefaultObject()->ItemName;
 		Item.Quantity = Quantity;
-
-		CompInventory->Server_AddItemToInventory(BaseItem.GetDefaultObject()->InventoryType, Item, this);
+		Item.Type = BaseItem.GetDefaultObject()->InventoryType;
+		CompInventory->Server_AddItemToInventory(Item, this);
 	}
 }
 
 void AOD_PickUpBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (!UOD_NetLibrary::IsDedicatedServer(this))
-	{
-		const APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController();
-		AOD_BaseCharacter* LocalCharacter = LocalPlayerController ? Cast<AOD_BaseCharacter>(LocalPlayerController->GetPawn()) : nullptr;
-		if (UOD_CompInventory* CompInventory = LocalCharacter ? LocalCharacter->GetCompInventory() : nullptr)
-		{
-			CompInventory->OnItemReceived_Client.RemoveAll(this);
-		}
-	}
-
 	Super::EndPlay(EndPlayReason);
 }
 

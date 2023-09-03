@@ -12,6 +12,15 @@ AOD_BasePlayerState::AOD_BasePlayerState() : Super()
     constexpr bool bIsReplicated = true;
     AbilitySystemComponent->SetIsReplicated(bIsReplicated);
     CompInventory->SetIsReplicated(bIsReplicated);
+    SetReplicates(bIsReplicated);
+}
+
+void AOD_BasePlayerState::Initialize()
+{
+    if (CompInventory)
+    {
+        CompInventory->Initialize();
+    }
 }
 
 UAbilitySystemComponent* AOD_BasePlayerState::GetAbilitySystemComponent() const
@@ -24,16 +33,18 @@ UOD_CompInventory* AOD_BasePlayerState::GetCompInventory()
     return CompInventory;
 }
 
+const UOD_CompInventory* AOD_BasePlayerState::GetCompInventory() const
+{
+    return CompInventory;
+}
+
+void AOD_BasePlayerState::OnRep_Owner()
+{
+    Super::OnRep_Owner();
+}
+
 void AOD_BasePlayerState::BeginPlay()
 {
     Super::BeginPlay();
-
-    if (UOD_NetLibrary::IsServer(this))
-    {
-        if (CompInventory)
-        {
-            CompInventory->InitInventories();
-        }
-    }
 }
 

@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Actors/OD_BasePlayerState.h"
 #include "Components/OD_AbilitySystemComponent.h"
+#include "Components/OD_CompInventory.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/OD_InteractionInterface.h"
@@ -55,6 +56,7 @@ void AOD_BaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	EnhancedInputComponent->BindAction(InputActionCrouch, ETriggerEvent::Completed, this, &AOD_BaseCharacter::BaseCrouch);
 	EnhancedInputComponent->BindAction(InputActionJump, ETriggerEvent::Started, this, &AOD_BaseCharacter::Jump);
 	EnhancedInputComponent->BindAction(InputActionInteract, ETriggerEvent::Completed, this, &AOD_BaseCharacter::StartInteraction);
+	EnhancedInputComponent->BindAction(InputActionChangeInventoryType, ETriggerEvent::Completed, this, &AOD_BaseCharacter::ChangeInventoryType);
 }
 
 void AOD_BaseCharacter::BeginPlay()
@@ -162,6 +164,16 @@ void AOD_BaseCharacter::BaseCrouch(const FInputActionValue& InputActionValue)
 	{
 		UnCrouch(false);
 	}
+}
+
+void AOD_BaseCharacter::ChangeInventoryType(const FInputActionValue& InputActionValue)
+{
+	UOD_CompInventory* CompInventory = GetCompInventory();
+	if (!CompInventory)
+		return;
+
+	constexpr bool bIncreaseInventoryType = true;
+	CompInventory->Server_ChangeInventoryType(bIncreaseInventoryType);
 }
 
 void AOD_BaseCharacter::InitAbilitySystemComponent()

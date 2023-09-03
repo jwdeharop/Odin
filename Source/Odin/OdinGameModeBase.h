@@ -13,5 +13,7 @@ UCLASS()
 class ODIN_API AOdinGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 };

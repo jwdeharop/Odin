@@ -23,3 +23,29 @@ bool UOD_NetLibrary::IsSimulatedClient(const APawn* Pawn)
 {
 	return Pawn && Pawn->GetLocalRole() == ENetRole::ROLE_SimulatedProxy;
 }
+
+APlayerController* UOD_NetLibrary::GetMainController(const UObject* WorldContextObject)
+{
+	// Get world context (containing player controllers)
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		// Loop on player controllers
+		for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			// Get player controller from iterator
+			APlayerController* PlayerController = Iterator->Get();
+
+			// Get local player if exist
+			ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+
+			// If it's local and id is 0, it's the main controller
+			if (LocalPlayer != nullptr && LocalPlayer->GetControllerId() == 0)
+			{
+				return PlayerController;
+			}
+		}
+	}
+
+	// Not found
+	return nullptr;
+}

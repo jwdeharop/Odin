@@ -49,11 +49,13 @@ protected:
 		UInputAction* InputActionJump = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
 		UInputAction* InputActionInteract = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Input")
+		UInputAction* InputActionChangeInventoryType = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player | Interact")
 		UOD_CompInteraction* CompInteraction = nullptr;
 
 	TWeakObjectPtr<UOD_AbilitySystemComponent> AbilitySystemComponent = nullptr;
-	
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
@@ -64,5 +66,7 @@ protected:
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 	void BaseCrouch(const FInputActionValue& InputActionValue);
+	void ChangeInventoryType(const FInputActionValue& InputActionValue);
+
 	void InitAbilitySystemComponent();
 };

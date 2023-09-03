@@ -15,8 +15,13 @@ class ODIN_API AOD_BasePlayerState : public APlayerState, public IAbilitySystemI
 
 public:
     AOD_BasePlayerState();
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	void Initialize();
 	UOD_CompInventory* GetCompInventory();
+	const UOD_CompInventory* GetCompInventory() const;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void OnRep_Owner() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Player|ASC")
@@ -25,4 +30,5 @@ protected:
 		UOD_CompInventory* CompInventory = nullptr;
 
 	virtual void BeginPlay() override;
+	
 };
