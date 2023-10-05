@@ -79,6 +79,14 @@ void UOD_CompInventory::InitInventories()
 		Inventory.Add(InventoryType);
 	}
 
+	for (FOD_InventoryType& InventoryType : Inventory)
+	{
+		if (InventoryType.MaxItemsInType <= 0)
+			continue;
+
+		InventoryType.Items.Init(FOD_InventoryValue(), InventoryType.MaxItemsInType);
+	}
+
 	CurrentInventoryType = EOD_InventoryType::RWeapon;
 	const FOD_ServerInventoryData InventoryData(Inventory, CurrentInventoryType);
 	Client_CopyInventory(InventoryData);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actors/OD_BasePlayerState.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/OD_CompInventory.h"
 #include "OD_UIInventoryGrid.generated.h"
@@ -9,6 +8,7 @@
 class UWrapBox;
 class UScrollBox;
 class UOD_UIInventorySlot;
+class AOD_BasePlayerState;
 
 UCLASS()
 class ODIN_API UOD_UIInventoryGrid : public UUserWidget
@@ -29,5 +29,5 @@ private:
 	void OnInventoryTypeChanged(EOD_InventoryType InventoryType);
 
 	void BindToEvents(AOD_BasePlayerState* PlayerState);
-	void InitGrid(int32 MaxItemsInGrid);
+	void InitGrid(EOD_InventoryType InventoryType);
 };

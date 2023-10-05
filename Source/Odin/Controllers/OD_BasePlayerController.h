@@ -1,10 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/OD_BasePlayerState.h"
 #include "GameFramework/PlayerController.h"
 #include "OD_BasePlayerController.generated.h"
 
-class AOD_BasePlayerState;
 
 DECLARE_DELEGATE_OneParam(FOnControllerGetsPlayerState, AOD_BasePlayerState* /*PlayerState*/)
 

@@ -1,6 +1,5 @@
 #include "OD_AssetManager.h"
 #include "AbilitySystemGlobals.h"
-#include "StructuredLog.h"
 
 UOD_AssetManager& UOD_AssetManager::Get() 
 {
@@ -11,7 +10,7 @@ UOD_AssetManager& UOD_AssetManager::Get()
 		return *Singleton;
 	}
 
-	UE_LOGFMT(LogTemp, Fatal, "Invalid AssetManager in DefaultEngine.ini, must be UOD_AssetManager!");
+	UE_LOG(LogTemp, Fatal, TEXT("Invalid AssetManager in DefaultEngine.ini, must be UOD_AssetManager!"));
 	return *NewObject<UOD_AssetManager>(); // never calls this
 }
 

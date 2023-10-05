@@ -154,6 +154,9 @@ void AOD_BaseCharacter::Look(const FInputActionValue& InputActionValue)
 void AOD_BaseCharacter::BaseCrouch(const FInputActionValue& InputActionValue)
 {
 	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (!MovementComponent)
+		return;
+
 	MovementComponent->bWantsToCrouch = !MovementComponent->bWantsToCrouch;
 
 	if (MovementComponent->bWantsToCrouch)
