@@ -1,14 +1,15 @@
 #include "OD_ElementalCharacter.h"
+#include "Actors/Elemental/Weapons/OD_ElementalBaseWeapon.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Elemental/OD_CompDamage.h"
+#include "Components/OD_CompInteraction.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "UnrealNetwork.h"
-#include "Actors/Elemental/Weapons/OD_ElementalBaseWeapon.h"
-#include "Components/Elemental/OD_CompDamage.h"
 #include "Libraries/OD_NetLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
+#include "UnrealNetwork.h"
 
 namespace AOD_ElementalCharacter_Consts
 {
@@ -46,11 +47,18 @@ AOD_ElementalCharacter::AOD_ElementalCharacter()
 	GetMesh()->SetOwnerNoSee(true);
 
 	CompDamage = CreateDefaultSubobject<UOD_CompDamage>(TEXT("CompDamage"));
+	CompInteraction = CreateDefaultSubobject<UOD_CompInteraction>("CompInteraction");
 }
 
 void AOD_ElementalCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UOD_NetLibrary::IsDedicatedServer(this))
+	{
+		CompInteraction->DestroyComponent();
+		CompInteraction = nullptr;
+	}
 
 	if (UOD_NetLibrary::IsServer(this))
 	{
@@ -98,6 +106,21 @@ void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 float AOD_ElementalCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
+{
+	Super::GetActorEyesViewPoint(OutLocation, OutRotation);
+	const AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get(); 
+	if (!CurrentWeaponPtr)
+		return;
+
+	FVector SocketLocation;
+	FRotator SocketRotator;
+	CurrentWeaponPtr->GetMuzzleInformation(SocketLocation, SocketRotator);
+
+	OutLocation = SocketLocation;
+	OutRotation = SocketRotator;
 }
 
 float AOD_ElementalCharacter::CalculateDamageToMe(EOD_ElementalDamageType DamageType) const

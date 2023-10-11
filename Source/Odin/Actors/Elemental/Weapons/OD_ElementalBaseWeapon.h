@@ -21,6 +21,7 @@ public:
 	virtual void Shoot(EOD_ElementalDamageType DamageType);
 
 	float GetRatio() const;
+	void GetMuzzleInformation(FVector& SocketLocation, FRotator& SocketRotator) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapons")

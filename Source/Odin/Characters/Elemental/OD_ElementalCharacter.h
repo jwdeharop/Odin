@@ -17,6 +17,7 @@ class UInputAction;
 class AOD_ElementalBaseWeapon;
 class UAnimMontage;
 class UOD_CompDamage;
+class UOD_CompInteraction;
 
 UCLASS(config=Game)
 class AOD_ElementalCharacter : public ACharacter
@@ -61,6 +62,9 @@ public:
 	float CalculateDamageToMe(EOD_ElementalDamageType DamageType) const;
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+		UOD_CompInteraction* CompInteraction = nullptr;
+
 	UFUNCTION(Server, Reliable)
 		void Server_Shoot();
 	UFUNCTION(Server, Reliable)
@@ -76,6 +80,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 
 };
 
