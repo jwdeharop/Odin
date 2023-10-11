@@ -18,6 +18,11 @@ void AOD_ElementalBaseWeapon::Shoot(EOD_ElementalDamageType DamageType)
 	Server_ShootAtDirection(SocketLocation, SocketRotator);
 }
 
+float AOD_ElementalBaseWeapon::GetRatio() const
+{
+	return Ratio;
+}
+
 void AOD_ElementalBaseWeapon::Server_ShootAtDirection_Implementation(const FVector SocketLocation, const FRotator SocketRotator)
 {
 	FActorSpawnParameters SpawnParams;

@@ -14,16 +14,22 @@ class AOD_ElementalBaseWeapon : public AActor
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(Server, Reliable)
+		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator);
+
 	AOD_ElementalBaseWeapon();
 	virtual void Shoot(EOD_ElementalDamageType DamageType);
 
-	UFUNCTION(Server, Reliable)
-		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator);
+	float GetRatio() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapons")
 		USkeletalMeshComponent* SkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AOD_ElementalProjectile> ProjectileClass = nullptr;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+		float Ratio = 0.1f;
 };
 

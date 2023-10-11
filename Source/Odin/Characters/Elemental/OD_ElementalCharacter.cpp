@@ -62,9 +62,6 @@ void AOD_ElementalCharacter::BeginPlay()
 
 		if (AOD_ElementalBaseWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AOD_ElementalBaseWeapon>(CurrentWeaponClass, SocketLocation, SocketRotator, SpawnParams))
 		{
-			SpawnedWeapon->SetOwner(this);
-			SpawnedWeapon->SetInstigator(this);
-
 			CurrentWeapon = SpawnedWeapon;
 			OnRep_CurrentWeapon();
 		}
@@ -93,14 +90,9 @@ void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOD_ElementalCharacter::Look);
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AOD_ElementalCharacter::Shoot);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AOD_ElementalCharacter::Shoot);
+		EnhancedInputComponent->BindAction(StopShootAction, ETriggerEvent::Completed, this, &AOD_ElementalCharacter::StopShooting);
 	}
-}
-
-void AOD_ElementalCharacter::OnRep_Controller()
-{
-	Super::OnRep_Controller();
-	Server_SetCapsule();
 }
 
 float AOD_ElementalCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -118,6 +110,47 @@ float AOD_ElementalCharacter::CalculateDamageToMe(EOD_ElementalDamageType Damage
 		return CompDamage->GetBaseDamage();
 
 	return CompDamage->GetDamage(MyPlayerState->GetCurrentDamageType(), DamageType);
+}
+
+void AOD_ElementalCharacter::Server_StopShoot_Implementation()
+{
+	if (ShootingTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(ShootingTimer);
+	}
+}
+
+void AOD_ElementalCharacter::Server_Shoot_Implementation()
+{
+	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
+	if (!MyPlayerState)
+		return;
+
+	AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get();
+	if (!CurrentWeaponPtr)
+		return;
+
+	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType());
+
+	const float WeaponRatio = CurrentWeaponPtr->GetRatio();
+	if (WeaponRatio > 0.f)
+	{
+		GetWorldTimerManager().SetTimer(ShootingTimer, this, &AOD_ElementalCharacter::Shoot, WeaponRatio);
+	}
+
+	Client_Shoot();
+}
+
+void AOD_ElementalCharacter::Client_Shoot_Implementation()
+{
+	if (IsLocallyControlled())
+	{
+		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		if (!AnimInstance)
+			return;
+
+		AnimInstance->Montage_Play(ShootMontage);
+	}
 }
 
 void AOD_ElementalCharacter::Move(const FInputActionValue& Value)
@@ -148,35 +181,12 @@ void AOD_ElementalCharacter::Look(const FInputActionValue& Value)
 
 void AOD_ElementalCharacter::Shoot()
 {
-	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
-	if (!MyPlayerState)
-		return;
-
-	if (AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get())
-	{
-		CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType());
-	}
-
-	// Just in case we're playing in a listener server. Dedicated servers won't need this.
-	if (UOD_NetLibrary::IsClient(this))
-	{
-		if (IsLocallyControlled())
-		{
-			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-			if (!AnimInstance)
-				return;
-
-			AnimInstance->Montage_Play(ShootMontage);
-		}
-	}
+	Server_Shoot();
 }
 
-void AOD_ElementalCharacter::Server_SetCapsule_Implementation()
+void AOD_ElementalCharacter::StopShooting()
 {
-	if (!IsLocallyControlled())
-	{
-		//GetCapsuleComponent()->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-	}
+	Server_StopShoot();
 }
 
 void AOD_ElementalCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

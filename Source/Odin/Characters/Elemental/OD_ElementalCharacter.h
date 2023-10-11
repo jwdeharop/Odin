@@ -37,6 +37,8 @@ class AOD_ElementalCharacter : public ACharacter
 		UInputAction* LookAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* ShootAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* StopShootAction = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapon")
 		TSubclassOf<AOD_ElementalBaseWeapon> CurrentWeaponClass = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -50,6 +52,8 @@ class AOD_ElementalCharacter : public ACharacter
 		void OnRep_CurrentWeapon();
 
 public:
+	FTimerHandle ShootingTimer;
+
 	AOD_ElementalCharacter();
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
@@ -57,19 +61,20 @@ public:
 	float CalculateDamageToMe(EOD_ElementalDamageType DamageType) const;
 
 protected:
-	UFUNCTION()
-		void OnDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-	
+	UFUNCTION(Server, Reliable)
+		void Server_Shoot();
+	UFUNCTION(Server, Reliable)
+		void Server_StopShoot();
+	UFUNCTION(Client, Reliable)
+		void Client_Shoot();
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Shoot();
-
-	UFUNCTION(Server, Reliable)
-		void Server_SetCapsule();
+	void StopShooting();
 
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	virtual void OnRep_Controller() override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 };
