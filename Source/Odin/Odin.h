@@ -1,9 +1,6 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
-
 
 UENUM(BlueprintType)
 enum class EOD_InventoryType : uint8
@@ -16,4 +13,18 @@ enum class EOD_InventoryType : uint8
 
 	Num_Types
 };
+
+UENUM(BlueprintType)
+enum class EOD_ElementalDamageType : uint8
+{
+	Basic,
+	Rock,
+	Wood,
+	Water,
+	Thunder,
+	Wind,
+	Fire
+};
+
+
 
