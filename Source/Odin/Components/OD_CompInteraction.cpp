@@ -22,8 +22,6 @@ void UOD_CompInteraction::StartInteraction()
 	if (!InteractionInterface)
 		return;
 
-	InteractionInterface->OnInteractionSucess.BindUObject(this, &UOD_CompInteraction::OnInteractionSucess);
-	InteractionInterface->StartInteraction(Cast<ACharacter>(GetOwner()));
 	if (InteractionInterface->IsHoldInteraction())
 	{
 		HoldInteractionStarts.ExecuteIfBound();
@@ -36,7 +34,6 @@ void UOD_CompInteraction::StopInteraction()
 	if (!InteractionInterface)
 		return;
 
-	InteractionInterface->CancelInteraction();
 	if (InteractionInterface->IsHoldInteraction())
 	{
 		HoldInteractionEnds.ExecuteIfBound();

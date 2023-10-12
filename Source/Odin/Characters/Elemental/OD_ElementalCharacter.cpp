@@ -10,6 +10,7 @@
 #include "Libraries/OD_NetLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 #include "UnrealNetwork.h"
+#include "Interfaces/OD_InteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -28,6 +29,38 @@ void AOD_ElementalCharacter::OnRep_CurrentWeapon()
 	{
 		CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
 	}
+}
+
+void AOD_ElementalCharacter::Server_StopInteraction_Implementation(AActor* InteractingObject)
+{
+	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(InteractingObject);
+	if (!InteractionInterface)
+		return;
+
+	InteractionInterface->CancelInteraction();
+}
+
+void AOD_ElementalCharacter::Client_OnInteractionSuccess_Implementation()
+{
+	if (CompInteraction)
+	{
+		CompInteraction->OnInteractionSucess();
+	}
+}
+
+void AOD_ElementalCharacter::OnInteractionSucess()
+{
+	Client_OnInteractionSuccess();
+}
+
+void AOD_ElementalCharacter::Server_StartInteraction_Implementation(AActor* InteractingObject)
+{
+	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(InteractingObject);
+	if (!InteractionInterface)
+		return;
+
+	InteractionInterface->OnInteractionSucess.BindUObject(this, &AOD_ElementalCharacter::OnInteractionSucess);
+	InteractionInterface->StartInteraction(this);
 }
 
 AOD_ElementalCharacter::AOD_ElementalCharacter()
@@ -236,6 +269,7 @@ void AOD_ElementalCharacter::StartInteraction()
 {
 	if (CompInteraction)
 	{
+		Server_StartInteraction(CompInteraction->GetCurrentInteractActor());
 		CompInteraction->StartInteraction();
 	}
 }
@@ -244,6 +278,7 @@ void AOD_ElementalCharacter::StopInteraction()
 {
 	if (CompInteraction)
 	{
+		Server_StopInteraction(CompInteraction->GetCurrentInteractActor());
 		CompInteraction->StopInteraction();
 	}
 }

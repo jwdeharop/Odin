@@ -25,10 +25,6 @@ protected:
 
 	FTimerHandle InteractionTimer;
 
-	UFUNCTION(Server, Reliable)
-		void Server_StartInteraction(ACharacter* InteractionInstigator);
-	UFUNCTION(Server, Reliable)
-		void Server_StopInteraction();
 	UFUNCTION(Client, Reliable)
 		void Client_InteractionSuccessful();
 

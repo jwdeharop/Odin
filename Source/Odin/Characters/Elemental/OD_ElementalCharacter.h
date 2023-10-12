@@ -56,6 +56,15 @@ class AOD_ElementalCharacter : public ACharacter
 	UFUNCTION()
 		void OnRep_CurrentWeapon();
 
+	UFUNCTION(Server, Reliable)
+		void Server_StartInteraction(AActor* InteractingObject);
+	UFUNCTION(Server, Reliable)
+		void Server_StopInteraction(AActor* InteractingObject);
+	UFUNCTION(Client, Reliable)
+		void Client_OnInteractionSuccess();
+
+	void OnInteractionSucess();
+
 public:
 	FTimerHandle ShootingTimer;
 
@@ -68,6 +77,7 @@ public:
 
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 	UOD_CompInteraction* GetCompInteraction() { return CompInteraction; }
+	
 protected:
 	UPROPERTY(EditDefaultsOnly)
 		UOD_CompInteraction* CompInteraction = nullptr;

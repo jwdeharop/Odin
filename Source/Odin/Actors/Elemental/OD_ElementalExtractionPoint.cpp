@@ -10,20 +10,6 @@ AOD_ElementalExtractionPoint::AOD_ElementalExtractionPoint()
 	RootComponent = MeshComponent;
 }
 
-void AOD_ElementalExtractionPoint::Server_StartInteraction_Implementation(ACharacter* InteractionInstigator)
-{
-	MyInstigator = InteractionInstigator;
-	GetWorldTimerManager().SetTimer(InteractionTimer, this, &AOD_ElementalExtractionPoint::InteractionSuccessful, GetHoldInteractTime());
-}
-
-void AOD_ElementalExtractionPoint::Server_StopInteraction_Implementation()
-{
-	if (InteractionTimer.IsValid())
-	{
-		GetWorldTimerManager().ClearTimer(InteractionTimer);
-	}
-}
-
 void AOD_ElementalExtractionPoint::Client_InteractionSuccessful_Implementation()
 {
 	OnInteractionSucess.ExecuteIfBound();
@@ -31,12 +17,16 @@ void AOD_ElementalExtractionPoint::Client_InteractionSuccessful_Implementation()
 
 void AOD_ElementalExtractionPoint::StartInteraction(ACharacter* InteractionInstigator)
 {
-	Server_StartInteraction(InteractionInstigator);
+	MyInstigator = InteractionInstigator;
+	GetWorldTimerManager().SetTimer(InteractionTimer, this, &AOD_ElementalExtractionPoint::InteractionSuccessful, GetHoldInteractTime());
 }
 
 void AOD_ElementalExtractionPoint::CancelInteraction()
 {
-	Server_StopInteraction();
+	if (InteractionTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(InteractionTimer);
+	}
 }
 
 void AOD_ElementalExtractionPoint::InteractionSuccessful()
@@ -52,7 +42,7 @@ void AOD_ElementalExtractionPoint::InteractionSuccessful()
 		MyPlayerState->Server_SetCurrentDamageType(DamageType);
 	}
 
-	Server_StopInteraction();
+	CancelInteraction();
 	Client_InteractionSuccessful();
 }
 
