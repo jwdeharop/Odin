@@ -15,6 +15,11 @@ AOD_ElementalProjectile::AOD_ElementalProjectile()
 	StaticMeshComponent->SetupAttachment(RootComponent);
 }
 
+void AOD_ElementalProjectile::SetCurrentDamage(EOD_ElementalDamageType DamageType)
+{
+	CurrentDamage = DamageType;
+}
+
 void AOD_ElementalProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	const AActor* MyOwner = GetOwner();

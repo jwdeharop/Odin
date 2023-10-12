@@ -15,10 +15,10 @@ class AOD_ElementalBaseWeapon : public AActor
 
 public:
 	UFUNCTION(Server, Reliable)
-		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator);
+		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator, const FVector& CameraLocation, const FVector& CameraVector);
 
 	AOD_ElementalBaseWeapon();
-	virtual void Shoot(EOD_ElementalDamageType DamageType);
+	virtual void Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector);
 
 	float GetRatio() const;
 	void GetMuzzleInformation(FVector& SocketLocation, FRotator& SocketRotator) const;
@@ -28,8 +28,8 @@ protected:
 		USkeletalMeshComponent* SkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AOD_ElementalProjectile> ProjectileClass = nullptr;
-
-private:
+	UPROPERTY(EditDefaultsOnly)
+		float MaxWeaponDistanceToShoot = 1000.f;
 	UPROPERTY(EditDefaultsOnly)
 		float Ratio = 0.1f;
 };

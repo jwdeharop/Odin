@@ -14,16 +14,18 @@ class AOD_ElementalProjectile : public AActor
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly)
+		UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
+
 	AOD_ElementalProjectile();
+	void SetCurrentDamage(EOD_ElementalDamageType DamageType);
 
 private:
 	UPROPERTY(EditDefaultsOnly)
 		USphereComponent* SphereComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		UStaticMeshComponent* StaticMeshComponent = nullptr;
-	UPROPERTY(EditDefaultsOnly)
-		UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
-
+	
 	EOD_ElementalDamageType CurrentDamage = EOD_ElementalDamageType::Basic;
 
 protected:

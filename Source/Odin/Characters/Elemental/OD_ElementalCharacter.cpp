@@ -10,6 +10,8 @@
 #include "Libraries/OD_NetLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 #include "UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 namespace AOD_ElementalCharacter_Consts
 {
@@ -82,6 +84,12 @@ void AOD_ElementalCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	if (CompInteraction)
+	{
+		CompInteraction->InteractionAvailable.BindUObject(this, &AOD_ElementalCharacter::OnInteractionAvailable);
+		CompInteraction->LostInteraction.BindUObject(this, &AOD_ElementalCharacter::OnInteractionLost);
+	}
 }
 
 void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -98,8 +106,14 @@ void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOD_ElementalCharacter::Look);
+
+		//Shooting
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AOD_ElementalCharacter::Shoot);
 		EnhancedInputComponent->BindAction(StopShootAction, ETriggerEvent::Completed, this, &AOD_ElementalCharacter::StopShooting);
+
+		// Interaction
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOD_ElementalCharacter::StartInteraction);
+		EnhancedInputComponent->BindAction(StopInteractionAction, ETriggerEvent::Completed, this, &AOD_ElementalCharacter::StopInteraction);
 	}
 }
 
@@ -111,16 +125,8 @@ float AOD_ElementalCharacter::TakeDamage(float Damage, FDamageEvent const& Damag
 void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
 {
 	Super::GetActorEyesViewPoint(OutLocation, OutRotation);
-	const AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get(); 
-	if (!CurrentWeaponPtr)
-		return;
-
-	FVector SocketLocation;
-	FRotator SocketRotator;
-	CurrentWeaponPtr->GetMuzzleInformation(SocketLocation, SocketRotator);
-
-	OutLocation = SocketLocation;
-	OutRotation = SocketRotator;
+	OutLocation = FirstPersonCameraComponent->GetComponentLocation();
+	OutRotation = FirstPersonCameraComponent->GetComponentRotation();
 }
 
 float AOD_ElementalCharacter::CalculateDamageToMe(EOD_ElementalDamageType DamageType) const
@@ -135,6 +141,15 @@ float AOD_ElementalCharacter::CalculateDamageToMe(EOD_ElementalDamageType Damage
 	return CompDamage->GetDamage(MyPlayerState->GetCurrentDamageType(), DamageType);
 }
 
+EOD_ElementalDamageType AOD_ElementalCharacter::GetCurrentDamage() const
+{
+	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
+	if (!MyPlayerState)
+		return EOD_ElementalDamageType::Basic;
+
+	return MyPlayerState->GetCurrentDamageType();
+}
+
 void AOD_ElementalCharacter::Server_StopShoot_Implementation()
 {
 	if (ShootingTimer.IsValid())
@@ -143,7 +158,7 @@ void AOD_ElementalCharacter::Server_StopShoot_Implementation()
 	}
 }
 
-void AOD_ElementalCharacter::Server_Shoot_Implementation()
+void AOD_ElementalCharacter::Server_Shoot_Implementation(const FVector& CameraLocation, const FVector& CameraDirection)
 {
 	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
 	if (!MyPlayerState)
@@ -153,9 +168,10 @@ void AOD_ElementalCharacter::Server_Shoot_Implementation()
 	if (!CurrentWeaponPtr)
 		return;
 
-	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType());
-
+	
+	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType(), CameraLocation, CameraDirection);
 	const float WeaponRatio = CurrentWeaponPtr->GetRatio();
+
 	if (WeaponRatio > 0.f)
 	{
 		GetWorldTimerManager().SetTimer(ShootingTimer, this, &AOD_ElementalCharacter::Shoot, WeaponRatio);
@@ -204,12 +220,42 @@ void AOD_ElementalCharacter::Look(const FInputActionValue& Value)
 
 void AOD_ElementalCharacter::Shoot()
 {
-	Server_Shoot();
+	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	if (!CameraManager)
+		return;
+	
+	Server_Shoot(CameraManager->GetCameraLocation(), CameraManager->GetCameraRotation().Vector());
 }
 
 void AOD_ElementalCharacter::StopShooting()
 {
 	Server_StopShoot();
+}
+
+void AOD_ElementalCharacter::StartInteraction()
+{
+	if (CompInteraction)
+	{
+		CompInteraction->StartInteraction();
+	}
+}
+
+void AOD_ElementalCharacter::StopInteraction()
+{
+	if (CompInteraction)
+	{
+		CompInteraction->StopInteraction();
+	}
+}
+
+void AOD_ElementalCharacter::OnInteractionAvailable()
+{
+	BP_ChangeInteractionWidgetInformation(true);
+}
+
+void AOD_ElementalCharacter::OnInteractionLost()
+{
+	BP_ChangeInteractionWidgetInformation(false);
 }
 
 void AOD_ElementalCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

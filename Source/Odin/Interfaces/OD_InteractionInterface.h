@@ -15,5 +15,8 @@ class IOD_InteractionInterface
 
 public:
 	virtual void PrepareInteraction(bool bCanInteract) {};
-	virtual void StartInteraction() {};
+	virtual void StartInteraction(ACharacter* Instigator) {};
+	virtual void CancelInteraction() {};
+	virtual void InteractionSuccessful() {};
+	virtual bool IsHoldInteraction() { return false; }
 };

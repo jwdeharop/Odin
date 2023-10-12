@@ -40,6 +40,10 @@ class AOD_ElementalCharacter : public ACharacter
 		UInputAction* ShootAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* StopShootAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* InteractAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* StopInteractionAction = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapon")
 		TSubclassOf<AOD_ElementalBaseWeapon> CurrentWeaponClass = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -60,27 +64,36 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	float CalculateDamageToMe(EOD_ElementalDamageType DamageType) const;
+	EOD_ElementalDamageType GetCurrentDamage() const;
+
+	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
 		UOD_CompInteraction* CompInteraction = nullptr;
 
 	UFUNCTION(Server, Reliable)
-		void Server_Shoot();
+		void Server_Shoot(const FVector& CameraLocation, const FVector& CameraDirection);
 	UFUNCTION(Server, Reliable)
 		void Server_StopShoot();
 	UFUNCTION(Client, Reliable)
 		void Client_Shoot();
+	UFUNCTION(BlueprintImplementableEvent)
+		void BP_ChangeInteractionWidgetInformation(bool bIsAvailable);
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Shoot();
 	void StopShooting();
+	void StartInteraction();
+	void StopInteraction();
+	void OnInteractionAvailable();
+
+	void OnInteractionLost();
 
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 
 };
 
