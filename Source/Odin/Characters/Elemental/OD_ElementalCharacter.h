@@ -67,7 +67,7 @@ public:
 	EOD_ElementalDamageType GetCurrentDamage() const;
 
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
-
+	UOD_CompInteraction* GetCompInteraction() { return CompInteraction; }
 protected:
 	UPROPERTY(EditDefaultsOnly)
 		UOD_CompInteraction* CompInteraction = nullptr;

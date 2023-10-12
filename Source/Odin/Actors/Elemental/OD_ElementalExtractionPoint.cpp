@@ -13,7 +13,7 @@ AOD_ElementalExtractionPoint::AOD_ElementalExtractionPoint()
 void AOD_ElementalExtractionPoint::Server_StartInteraction_Implementation(ACharacter* InteractionInstigator)
 {
 	MyInstigator = InteractionInstigator;
-	GetWorldTimerManager().SetTimer(InteractionTimer, this, &AOD_ElementalExtractionPoint::InteractionSuccessful, 3.f);
+	GetWorldTimerManager().SetTimer(InteractionTimer, this, &AOD_ElementalExtractionPoint::InteractionSuccessful, GetHoldInteractTime());
 }
 
 void AOD_ElementalExtractionPoint::Server_StopInteraction_Implementation()
@@ -22,6 +22,11 @@ void AOD_ElementalExtractionPoint::Server_StopInteraction_Implementation()
 	{
 		GetWorldTimerManager().ClearTimer(InteractionTimer);
 	}
+}
+
+void AOD_ElementalExtractionPoint::Client_InteractionSuccessful_Implementation()
+{
+	OnInteractionSucess.ExecuteIfBound();
 }
 
 void AOD_ElementalExtractionPoint::StartInteraction(ACharacter* InteractionInstigator)
@@ -34,11 +39,6 @@ void AOD_ElementalExtractionPoint::CancelInteraction()
 	Server_StopInteraction();
 }
 
-bool AOD_ElementalExtractionPoint::IsHoldInteraction()
-{
-	return true;
-}
-
 void AOD_ElementalExtractionPoint::InteractionSuccessful()
 {
 	if (InteractionTimer.IsValid())
@@ -46,10 +46,17 @@ void AOD_ElementalExtractionPoint::InteractionSuccessful()
 		GetWorldTimerManager().ClearTimer(InteractionTimer);
 	}
 
-	AOD_ElementalCharacter* MyCharacter = Cast<AOD_ElementalCharacter>(MyInstigator);
-	AOD_ElementalPlayerState* MyPlayerState = MyCharacter ? MyCharacter->GetPlayerState<AOD_ElementalPlayerState>() : nullptr;
-	if (MyPlayerState)
+	const AOD_ElementalCharacter* MyCharacter = Cast<AOD_ElementalCharacter>(MyInstigator);
+	if (AOD_ElementalPlayerState* MyPlayerState = MyCharacter ? MyCharacter->GetPlayerState<AOD_ElementalPlayerState>() : nullptr)
 	{
 		MyPlayerState->Server_SetCurrentDamageType(DamageType);
 	}
+
+	Server_StopInteraction();
+	Client_InteractionSuccessful();
+}
+
+float AOD_ElementalExtractionPoint::GetHoldInteractTime()
+{
+	return InteractionTime;
 }

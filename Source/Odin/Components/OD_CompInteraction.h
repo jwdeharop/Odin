@@ -22,11 +22,16 @@ class ODIN_API UOD_CompInteraction : public UActorComponent
 public:
 	FSimpleDelegate InteractionAvailable;
 	FSimpleDelegate LostInteraction;
+	FSimpleDelegate HoldInteractionStarts;
+	FSimpleDelegate HoldInteractionEnds;
 
 	UOD_CompInteraction(const FObjectInitializer& ObjectInitializer);
+	void OnInteractionSucess();
 	void StartInteraction();
 	void StopInteraction();;
-	AActor* GetCurrentInteractActor() { return CurrentInteractActor.Get(); }
+	AActor* GetCurrentInteractActor() const { return CurrentInteractActor.Get(); }
+	bool IsHoldInteractionObject() const;
+	float GetObjectHoldInteractionTime() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Interact")

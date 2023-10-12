@@ -5,11 +5,15 @@
 #include "Characters/Elemental/OD_ElementalCharacter.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/OD_InteractionInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 UOD_CompInteraction::UOD_CompInteraction(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UOD_CompInteraction::OnInteractionSucess()
+{
+	StopInteraction();
 }
 
 void UOD_CompInteraction::StartInteraction()
@@ -18,7 +22,12 @@ void UOD_CompInteraction::StartInteraction()
 	if (!InteractionInterface)
 		return;
 
+	InteractionInterface->OnInteractionSucess.BindUObject(this, &UOD_CompInteraction::OnInteractionSucess);
 	InteractionInterface->StartInteraction(Cast<ACharacter>(GetOwner()));
+	if (InteractionInterface->IsHoldInteraction())
+	{
+		HoldInteractionStarts.ExecuteIfBound();
+	}
 }
 
 void UOD_CompInteraction::StopInteraction()
@@ -28,6 +37,22 @@ void UOD_CompInteraction::StopInteraction()
 		return;
 
 	InteractionInterface->CancelInteraction();
+	if (InteractionInterface->IsHoldInteraction())
+	{
+		HoldInteractionEnds.ExecuteIfBound();
+	}
+}
+
+bool UOD_CompInteraction::IsHoldInteractionObject() const
+{
+	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
+	return InteractionInterface && InteractionInterface->IsHoldInteraction();
+}
+
+float UOD_CompInteraction::GetObjectHoldInteractionTime() const
+{
+	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
+	return InteractionInterface ? InteractionInterface->GetHoldInteractTime() : 0.f;
 }
 
 void UOD_CompInteraction::BeginPlay()

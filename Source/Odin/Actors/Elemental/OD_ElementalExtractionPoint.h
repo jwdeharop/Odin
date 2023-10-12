@@ -20,6 +20,8 @@ protected:
 		UStaticMeshComponent* MeshComponent = nullptr;
 	UPROPERTY(EditAnywhere)
 		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Basic;
+	UPROPERTY(EditAnywhere)
+		float InteractionTime = 3.f;
 
 	FTimerHandle InteractionTimer;
 
@@ -27,11 +29,13 @@ protected:
 		void Server_StartInteraction(ACharacter* InteractionInstigator);
 	UFUNCTION(Server, Reliable)
 		void Server_StopInteraction();
+	UFUNCTION(Client, Reliable)
+		void Client_InteractionSuccessful();
 
 	virtual void StartInteraction(ACharacter* InteractionInstigator) override;
 	virtual void CancelInteraction() override;
-	virtual bool IsHoldInteraction() override;
 	virtual void InteractionSuccessful() override;
+	virtual float GetHoldInteractTime() override;
 
 private:
 	UPROPERTY(Transient)
