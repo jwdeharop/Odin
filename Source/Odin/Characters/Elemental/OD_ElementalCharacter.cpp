@@ -27,7 +27,7 @@ void AOD_ElementalCharacter::OnRep_CurrentWeapon()
 {
 	if (CurrentWeapon.Get())
 	{
-		CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
+		//CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
 	}
 }
 
@@ -106,6 +106,7 @@ void AOD_ElementalCharacter::BeginPlay()
 		if (AOD_ElementalBaseWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AOD_ElementalBaseWeapon>(CurrentWeaponClass, SocketLocation, SocketRotator, SpawnParams))
 		{
 			CurrentWeapon = SpawnedWeapon;
+			CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
 			OnRep_CurrentWeapon();
 		}
 	}
@@ -191,7 +192,7 @@ void AOD_ElementalCharacter::Server_StopShoot_Implementation()
 	}
 }
 
-void AOD_ElementalCharacter::Server_Shoot_Implementation(const FVector& CameraLocation, const FVector& CameraDirection)
+void AOD_ElementalCharacter::Server_Shoot_Implementation(const FVector& CameraLocation, const FVector& CameraDirection, const FVector& MuzzleLocation, const FRotator& MuzzleRotation)
 {
 	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
 	if (!MyPlayerState)
@@ -200,9 +201,8 @@ void AOD_ElementalCharacter::Server_Shoot_Implementation(const FVector& CameraLo
 	AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get();
 	if (!CurrentWeaponPtr)
 		return;
-
 	
-	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType(), CameraLocation, CameraDirection);
+	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType(), CameraLocation, CameraDirection, MuzzleLocation, MuzzleRotation);
 	const float WeaponRatio = CurrentWeaponPtr->GetRatio();
 
 	if (WeaponRatio > 0.f)
@@ -256,8 +256,14 @@ void AOD_ElementalCharacter::Shoot()
 	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 	if (!CameraManager)
 		return;
-	
-	Server_Shoot(CameraManager->GetCameraLocation(), CameraManager->GetCameraRotation().Vector());
+
+	if (!CurrentWeapon.Get())
+		return;
+
+	FVector SocketLocation;
+	FRotator SocketRotator;
+	CurrentWeapon->GetMuzzleInformation(SocketLocation, SocketRotator);
+	Server_Shoot(CameraManager->GetCameraLocation(), CameraManager->GetCameraRotation().Vector(), SocketLocation, SocketRotator);
 }
 
 void AOD_ElementalCharacter::StopShooting()

@@ -83,7 +83,7 @@ protected:
 		UOD_CompInteraction* CompInteraction = nullptr;
 
 	UFUNCTION(Server, Reliable)
-		void Server_Shoot(const FVector& CameraLocation, const FVector& CameraDirection);
+		void Server_Shoot(const FVector& CameraLocation, const FVector& CameraDirection, const FVector& MuzzleLocation, const FRotator& MuzzleRotation);
 	UFUNCTION(Server, Reliable)
 		void Server_StopShoot();
 	UFUNCTION(Client, Reliable)

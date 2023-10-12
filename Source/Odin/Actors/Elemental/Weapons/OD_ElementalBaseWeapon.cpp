@@ -29,15 +29,12 @@ AOD_ElementalBaseWeapon::AOD_ElementalBaseWeapon()
 	RootComponent = SkeletalMesh;
 }
 
-void AOD_ElementalBaseWeapon::Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector)
+void AOD_ElementalBaseWeapon::Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector, const FVector& MuzzleLocation, const FRotator& MuzzleRotation)
 {
 	if (!ProjectileClass || !SkeletalMesh)
 		return;
 
-	FVector SocketLocation;
-	FRotator SocketRotator;
-	GetMuzzleInformation(SocketLocation, SocketRotator);
-	Server_ShootAtDirection(SocketLocation, SocketRotator, CameraLocation, CameraVector);
+	Server_ShootAtDirection(MuzzleLocation, MuzzleRotation, CameraLocation, CameraVector);
 }
 
 float AOD_ElementalBaseWeapon::GetRatio() const

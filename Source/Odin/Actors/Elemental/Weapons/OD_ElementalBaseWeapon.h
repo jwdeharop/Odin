@@ -18,7 +18,7 @@ public:
 		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator, const FVector& CameraLocation, const FVector& CameraVector);
 
 	AOD_ElementalBaseWeapon();
-	virtual void Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector);
+	virtual void Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector, const FVector& MuzzleLocation, const FRotator& MuzzleRotation);
 
 	float GetRatio() const;
 	void GetMuzzleInformation(FVector& SocketLocation, FRotator& SocketRotator) const;
