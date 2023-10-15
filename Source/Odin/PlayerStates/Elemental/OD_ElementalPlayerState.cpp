@@ -4,27 +4,6 @@
 
 void AOD_ElementalPlayerState::Server_SetCurrentDamageType_Implementation(EOD_ElementalDamageType DamageType)
 {
-	// If both slots are basic, we can change the current slot.
-	if (CurrentPlayerStats.CurrentDamageType == EOD_ElementalDamageType::Basic && CurrentPlayerStats.SecondSlot == EOD_ElementalDamageType::Basic)
-	{
-		CurrentPlayerStats.CurrentDamageType = DamageType;
-		OnRep_PlayerStats();
-		return;
-	}
-
-	if (CurrentPlayerStats.SecondSlot == EOD_ElementalDamageType::Basic)
-	{
-		CurrentPlayerStats.SecondSlot = DamageType;
-		OnRep_PlayerStats();
-		return;
-	}
-
-	if (DamageType == CurrentPlayerStats.SecondSlot && DamageType != CurrentPlayerStats.CurrentDamageType)
-	{
-		Server_ChangePrimaryDamageType();
-		return;
-	}
-
 	CurrentPlayerStats.CurrentDamageType = DamageType;
 	OnRep_PlayerStats();
 }
