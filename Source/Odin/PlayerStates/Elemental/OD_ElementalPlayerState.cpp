@@ -19,6 +19,12 @@ void AOD_ElementalPlayerState::Server_SetCurrentDamageType_Implementation(EOD_El
 		return;
 	}
 
+	if (DamageType == CurrentPlayerStats.SecondSlot && DamageType != CurrentPlayerStats.CurrentDamageType)
+	{
+		Server_ChangePrimaryDamageType();
+		return;
+	}
+
 	CurrentPlayerStats.CurrentDamageType = DamageType;
 	OnRep_PlayerStats();
 }
