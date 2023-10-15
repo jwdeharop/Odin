@@ -110,6 +110,8 @@ void AOD_ElementalCharacter::BeginPlay()
 			CurrentWeapon = SpawnedWeapon;
 			CurrentWeapon->AttachToComponent(GetMesh1P(), AttachmentRules, FName(TEXT("GripPoint")));
 		}
+
+		OnRep_PlayerState();
 	}
 
 	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -149,6 +151,8 @@ void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 		// Interaction
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOD_ElementalCharacter::StartInteraction);
 		EnhancedInputComponent->BindAction(StopInteractionAction, ETriggerEvent::Completed, this, &AOD_ElementalCharacter::StopInteraction);
+
+		EnhancedInputComponent->BindAction(ChangeDTAction, ETriggerEvent::Triggered, this, &AOD_ElementalCharacter::ChangeDT);
 	}
 }
 
@@ -161,7 +165,7 @@ float AOD_ElementalCharacter::TakeDamage(float Damage, FDamageEvent const& Damag
 	if (!MyPlayerState)
 		return TotalDamage;
 
-	MyPlayerState->TakeDamage(Damage);
+	MyPlayerState->LocalTakeDamage(Damage);
 	
 	return TotalDamage;
 }
@@ -176,20 +180,16 @@ void AOD_ElementalCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AOD_ElementalCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	Client_PossessedBy(NewController);
+}
+
 void AOD_ElementalCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-
-	if (AOD_ElementalPlayerController* MyController = GetController<AOD_ElementalPlayerController>())
-	{
-		MyHud = CreateWidget(MyController, HUD, TEXT("HUD"));
-		if (MyHud)
-		{
-			MyHud->AddToViewport();
-		}
-	}
-		
-	OnRepPlayerState.Broadcast(GetPlayerState());
+	FString s;
 }
 
 void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
@@ -255,6 +255,20 @@ void AOD_ElementalCharacter::Client_Shoot_Implementation()
 	}
 }
 
+void AOD_ElementalCharacter::Client_PossessedBy_Implementation(AController* NewController)
+{
+	if (AOD_ElementalPlayerController* MyController = Cast<AOD_ElementalPlayerController>(NewController))
+	{
+		MyHud = CreateWidget(MyController, HUD, TEXT("HUD"));
+		if (MyHud)
+		{
+			MyHud->AddToViewport();
+		}
+	}
+
+	OnClientPossessed.Broadcast(NewController);
+}
+
 void AOD_ElementalCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -314,6 +328,15 @@ void AOD_ElementalCharacter::StopInteraction()
 		Server_StopInteraction(CompInteraction->GetCurrentInteractActor());
 		CompInteraction->StopInteraction();
 	}
+}
+
+void AOD_ElementalCharacter::ChangeDT()
+{
+	AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
+	if (!MyPlayerState)
+		return;
+
+	MyPlayerState->Server_ChangePrimaryDamageType();
 }
 
 void AOD_ElementalCharacter::OnInteractionAvailable()

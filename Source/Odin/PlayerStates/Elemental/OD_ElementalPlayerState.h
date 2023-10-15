@@ -20,7 +20,7 @@ struct FOD_PlayerStats
 		EOD_ElementalDamageType SecondSlot = EOD_ElementalDamageType::Basic; 
 };
 
-DECLARE_DELEGATE_OneParam(FOnStatsChanged, FOD_PlayerStats);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStatsChanged, FOD_PlayerStats);
 
 UCLASS(config=Game)
 class AOD_ElementalPlayerState : public APlayerState
@@ -30,12 +30,14 @@ class AOD_ElementalPlayerState : public APlayerState
 public:
 	UFUNCTION(Server, Reliable)
 		void Server_SetCurrentDamageType(EOD_ElementalDamageType DamageType);
+	UFUNCTION(Server, Reliable)
+		void Server_ChangePrimaryDamageType();
 
 	FOnStatsChanged OnClientStatsChanged;
 
 	EOD_ElementalDamageType GetCurrentDamageType() const;
-	void TakeDamage(float Damage);
-
+	void LocalTakeDamage(float Damage);
+	
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerStats)
 		FOD_PlayerStats CurrentPlayerStats;

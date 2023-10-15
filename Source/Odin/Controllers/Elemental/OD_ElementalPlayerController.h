@@ -4,15 +4,19 @@
 #include "GameFramework/PlayerController.h"
 #include "OD_ElementalPlayerController.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnControllerGetsPlayerState, APlayerState*);
+
 UCLASS(config=Game)
 class AOD_ElementalPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+	FOnControllerGetsPlayerState OnClientGetsPlayerState;
+
 protected:
 	virtual void BeginPlay() override;
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnRep_PlayerState() override;
 	
 };
 

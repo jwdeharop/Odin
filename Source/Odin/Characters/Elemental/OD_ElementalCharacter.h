@@ -19,7 +19,7 @@ class UAnimMontage;
 class UOD_CompDamage;
 class UOD_CompInteraction;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStateRep, APlayerState*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClientPossessed, AController*);
 
 UCLASS(config=Game)
 class AOD_ElementalCharacter : public ACharacter
@@ -46,6 +46,8 @@ class AOD_ElementalCharacter : public ACharacter
 		UInputAction* InteractAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* StopInteractionAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* ChangeDTAction = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapon")
 		TSubclassOf<AOD_ElementalBaseWeapon> CurrentWeaponClass = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -76,7 +78,7 @@ public:
 		EOD_ElementalDamageType InteractionDamageType = EOD_ElementalDamageType::Basic;
 		
 	FTimerHandle ShootingTimer;
-	FOnPlayerStateRep OnRepPlayerState;
+	FOnClientPossessed OnClientPossessed;
 
 	AOD_ElementalCharacter();
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
@@ -100,6 +102,8 @@ protected:
 		void Client_Shoot();
 	UFUNCTION(BlueprintImplementableEvent)
 		void BP_ChangeInteractionWidgetInformation(bool bIsAvailable);
+	UFUNCTION(Client, Reliable)
+		void Client_PossessedBy(AController* NewController);
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -107,14 +111,16 @@ protected:
 	void StopShooting();
 	void StartInteraction();
 	void StopInteraction();
-	void OnInteractionAvailable();
+	void ChangeDT();
 
+	void OnInteractionAvailable();
 	void OnInteractionLost();
 
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 };
 

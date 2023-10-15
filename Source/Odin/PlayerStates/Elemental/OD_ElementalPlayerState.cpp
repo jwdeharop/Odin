@@ -8,16 +8,31 @@ void AOD_ElementalPlayerState::Server_SetCurrentDamageType_Implementation(EOD_El
 	if (CurrentPlayerStats.CurrentDamageType == EOD_ElementalDamageType::Basic && CurrentPlayerStats.SecondSlot == EOD_ElementalDamageType::Basic)
 	{
 		CurrentPlayerStats.CurrentDamageType = DamageType;
+		OnRep_PlayerStats();
 		return;
 	}
 
 	if (CurrentPlayerStats.SecondSlot == EOD_ElementalDamageType::Basic)
 	{
 		CurrentPlayerStats.SecondSlot = DamageType;
+		OnRep_PlayerStats();
 		return;
 	}
 
 	CurrentPlayerStats.CurrentDamageType = DamageType;
+	OnRep_PlayerStats();
+}
+
+void AOD_ElementalPlayerState::Server_ChangePrimaryDamageType_Implementation()
+{
+	if (CurrentPlayerStats.CurrentDamageType == CurrentPlayerStats.SecondSlot)
+		return;
+
+	const EOD_ElementalDamageType AuxDamage = CurrentPlayerStats.SecondSlot;
+	CurrentPlayerStats.SecondSlot = CurrentPlayerStats.CurrentDamageType;
+	CurrentPlayerStats.CurrentDamageType = AuxDamage;
+
+	OnRep_PlayerStats();
 }
 
 EOD_ElementalDamageType AOD_ElementalPlayerState::GetCurrentDamageType() const
@@ -25,15 +40,16 @@ EOD_ElementalDamageType AOD_ElementalPlayerState::GetCurrentDamageType() const
 	return CurrentPlayerStats.CurrentDamageType;
 }
 
-void AOD_ElementalPlayerState::TakeDamage(float Damage)
+void AOD_ElementalPlayerState::LocalTakeDamage(float Damage)
 {
 	CurrentPlayerStats.CurrentHealth -= Damage;
-	OnClientStatsChanged.ExecuteIfBound(CurrentPlayerStats);
+	OnRep_PlayerStats();
+	OnClientStatsChanged.Broadcast(CurrentPlayerStats);
 }
 
 void AOD_ElementalPlayerState::OnRep_PlayerStats() const
 {
-	OnClientStatsChanged.ExecuteIfBound(CurrentPlayerStats);
+	OnClientStatsChanged.Broadcast(CurrentPlayerStats);
 }
 
 void AOD_ElementalPlayerState::BeginPlay()
@@ -46,6 +62,9 @@ void AOD_ElementalPlayerState::BeginPlay()
 		CurrentPlayerStats.CurrentHealth = CurrentPlayerStats.MaxHealth;
 		CurrentPlayerStats.CurrentDamageType = EOD_ElementalDamageType::Basic;
 		CurrentPlayerStats.SecondSlot = EOD_ElementalDamageType::Basic;
+
+		// Just for listener servers.
+		OnRep_PlayerStats();
 	}
 }
 

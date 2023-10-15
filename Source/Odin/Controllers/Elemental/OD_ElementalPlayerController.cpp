@@ -1,17 +1,14 @@
 #include "Controllers/Elemental/OD_ElementalPlayerController.h"
-#include "Libraries/OD_NetLibrary.h"
+#include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 
 void AOD_ElementalPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	OnRep_PlayerState();
 }
 
-float AOD_ElementalPlayerController::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AOD_ElementalPlayerController::OnRep_PlayerState()
 {
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-}
-
-void AOD_ElementalPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
+	Super::OnRep_PlayerState();
+	OnClientGetsPlayerState.Broadcast(GetPlayerState<APlayerState>());	
 }
