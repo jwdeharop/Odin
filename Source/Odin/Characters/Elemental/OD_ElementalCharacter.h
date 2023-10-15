@@ -19,6 +19,8 @@ class UAnimMontage;
 class UOD_CompDamage;
 class UOD_CompInteraction;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStateRep, APlayerState*);
+
 UCLASS(config=Game)
 class AOD_ElementalCharacter : public ACharacter
 {
@@ -52,7 +54,9 @@ class AOD_ElementalCharacter : public ACharacter
 		UOD_CompDamage* CompDamage = nullptr;
 	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon)
 		TWeakObjectPtr<AOD_ElementalBaseWeapon> CurrentWeapon = nullptr;
-
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UUserWidget> HUD = nullptr;
+	
 	UFUNCTION()
 		void OnRep_CurrentWeapon();
 
@@ -66,7 +70,13 @@ class AOD_ElementalCharacter : public ACharacter
 	void OnInteractionSucess();
 
 public:
+	UPROPERTY(BlueprintReadWrite)
+		UUserWidget* MyHud = nullptr;
+	UPROPERTY(BlueprintReadOnly)
+		EOD_ElementalDamageType InteractionDamageType = EOD_ElementalDamageType::Basic;
+		
 	FTimerHandle ShootingTimer;
+	FOnPlayerStateRep OnRepPlayerState;
 
 	AOD_ElementalCharacter();
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
@@ -83,7 +93,7 @@ protected:
 		UOD_CompInteraction* CompInteraction = nullptr;
 
 	UFUNCTION(Server, Reliable)
-		void Server_Shoot(const FVector& CameraLocation, const FVector& CameraDirection, const FVector& MuzzleLocation, const FRotator& MuzzleRotation);
+		void NewServer_Shoot(const FVector& SpawnLocation, const FRotator& SpawnRotator);
 	UFUNCTION(Server, Reliable)
 		void Server_StopShoot();
 	UFUNCTION(Client, Reliable)
@@ -104,6 +114,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void OnRep_PlayerState() override;
 };
 

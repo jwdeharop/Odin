@@ -82,7 +82,7 @@ void UOD_CompInteraction::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	if (CurrentInteractActor.Get() && (InteractionType == EOD_InteractionType::InteractionLost || InteractionType == EOD_InteractionType::NoInteraction))
 	{
 		ResetInteraction(OutHit.GetActor());
-		LostInteraction.ExecuteIfBound();
+		LostInteraction.Broadcast();
 	}
 }
 
@@ -112,7 +112,6 @@ bool UOD_CompInteraction::LineTraceSingle(FHitResult& OutHit) const
 	const FVector EndLocation = StartLocation + CharacterRotation.Vector() * InteractDistance;
 	constexpr bool bTraceComplex = true;
 	const FCollisionQueryParams CollisionParameters(NAME_None, bTraceComplex, OwnerCharacter.Get());
-	//UKismetSystemLibrary::DrawDebugLine(this, StartLocation, EndLocation, FLinearColor::Red, 100.f, 10.f);
 	return World->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, COLLISION_CHANNEL(InteractRaycast), CollisionParameters);
 }
 

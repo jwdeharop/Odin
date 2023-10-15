@@ -15,7 +15,7 @@ void AOdinGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 #if WITH_GAMELIFT
-	InitGameLift();
+	//InitGameLift();
 #endif
 }
 
@@ -38,7 +38,7 @@ void AOdinGameModeBase::InitGameLift()
 	if (!GameLiftSDKModule)
 		return;
 
-	    //Define the server parameters for a GameLift Anywhere fleet. These are not needed for a GameLift managed EC2 fleet.
+	//Define the server parameters for a GameLift Anywhere fleet. These are not needed for a GameLift managed EC2 fleet.
     FServerParameters ServerParameters;
 
     //AuthToken returned from the "aws gamelift get-compute-auth-token" API. Note this will expire and require a new call to the API after 15 minutes.

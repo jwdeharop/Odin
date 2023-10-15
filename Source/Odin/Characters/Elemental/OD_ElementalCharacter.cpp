@@ -10,9 +10,10 @@
 #include "Libraries/OD_NetLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 #include "UnrealNetwork.h"
+#include "UserWidget.h"
+#include "Controllers/Elemental/OD_ElementalPlayerController.h"
 #include "Interfaces/OD_InteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 namespace AOD_ElementalCharacter_Consts
 {
@@ -105,9 +106,9 @@ void AOD_ElementalCharacter::BeginPlay()
 
 		if (AOD_ElementalBaseWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AOD_ElementalBaseWeapon>(CurrentWeaponClass, SocketLocation, SocketRotator, SpawnParams))
 		{
+			FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 			CurrentWeapon = SpawnedWeapon;
-			CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
-			OnRep_CurrentWeapon();
+			CurrentWeapon->AttachToComponent(GetMesh1P(), AttachmentRules, FName(TEXT("GripPoint")));
 		}
 	}
 
@@ -122,7 +123,7 @@ void AOD_ElementalCharacter::BeginPlay()
 	if (CompInteraction)
 	{
 		CompInteraction->InteractionAvailable.BindUObject(this, &AOD_ElementalCharacter::OnInteractionAvailable);
-		CompInteraction->LostInteraction.BindUObject(this, &AOD_ElementalCharacter::OnInteractionLost);
+		CompInteraction->LostInteraction.AddUObject(this, &AOD_ElementalCharacter::OnInteractionLost);
 	}
 }
 
@@ -153,7 +154,42 @@ void AOD_ElementalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 float AOD_ElementalCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	const float TotalDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	//REFACTOR NEEDED.
+	AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
+	if (!MyPlayerState)
+		return TotalDamage;
+
+	MyPlayerState->TakeDamage(Damage);
+	
+	return TotalDamage;
+}
+
+void AOD_ElementalCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (CurrentWeapon.Get())
+	{
+		CurrentWeapon->Destroy();
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void AOD_ElementalCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (AOD_ElementalPlayerController* MyController = GetController<AOD_ElementalPlayerController>())
+	{
+		MyHud = CreateWidget(MyController, HUD, TEXT("HUD"));
+		if (MyHud)
+		{
+			MyHud->AddToViewport();
+		}
+	}
+		
+	OnRepPlayerState.Broadcast(GetPlayerState());
 }
 
 void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
@@ -161,6 +197,21 @@ void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotato
 	Super::GetActorEyesViewPoint(OutLocation, OutRotation);
 	OutLocation = FirstPersonCameraComponent->GetComponentLocation();
 	OutRotation = FirstPersonCameraComponent->GetComponentRotation();
+}
+
+void AOD_ElementalCharacter::NewServer_Shoot_Implementation(const FVector& SpawnLocation, const FRotator& SpawnRotator)
+{
+	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
+	if (!MyPlayerState)
+		return;
+
+	AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get();
+	if (!CurrentWeaponPtr)
+		return;
+
+	CurrentWeaponPtr->NewShoot(MyPlayerState->GetCurrentDamageType(), SpawnLocation, SpawnRotator);
+	Client_Shoot();
+	GetWorldTimerManager().SetTimer(ShootingTimer, this, &AOD_ElementalCharacter::Shoot, CurrentWeapon->GetRatio());
 }
 
 float AOD_ElementalCharacter::CalculateDamageToMe(EOD_ElementalDamageType DamageType) const
@@ -190,27 +241,6 @@ void AOD_ElementalCharacter::Server_StopShoot_Implementation()
 	{
 		GetWorldTimerManager().ClearTimer(ShootingTimer);
 	}
-}
-
-void AOD_ElementalCharacter::Server_Shoot_Implementation(const FVector& CameraLocation, const FVector& CameraDirection, const FVector& MuzzleLocation, const FRotator& MuzzleRotation)
-{
-	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
-	if (!MyPlayerState)
-		return;
-
-	AOD_ElementalBaseWeapon* CurrentWeaponPtr = CurrentWeapon.Get();
-	if (!CurrentWeaponPtr)
-		return;
-	
-	CurrentWeaponPtr->Shoot(MyPlayerState->GetCurrentDamageType(), CameraLocation, CameraDirection, MuzzleLocation, MuzzleRotation);
-	const float WeaponRatio = CurrentWeaponPtr->GetRatio();
-
-	if (WeaponRatio > 0.f)
-	{
-		GetWorldTimerManager().SetTimer(ShootingTimer, this, &AOD_ElementalCharacter::Shoot, WeaponRatio);
-	}
-
-	Client_Shoot();
 }
 
 void AOD_ElementalCharacter::Client_Shoot_Implementation()
@@ -253,17 +283,14 @@ void AOD_ElementalCharacter::Look(const FInputActionValue& Value)
 
 void AOD_ElementalCharacter::Shoot()
 {
-	const APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
-	if (!CameraManager)
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (!CurrentWeapon.Get() || !PlayerController)
 		return;
 
-	if (!CurrentWeapon.Get())
-		return;
-
-	FVector SocketLocation;
-	FRotator SocketRotator;
-	CurrentWeapon->GetMuzzleInformation(SocketLocation, SocketRotator);
-	Server_Shoot(CameraManager->GetCameraLocation(), CameraManager->GetCameraRotation().Vector(), SocketLocation, SocketRotator);
+	const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+	const FVector SpawnLocation = CurrentWeapon->GetActorLocation() + SpawnRotation.RotateVector(FVector(100.0f, 0.0f, 10.0f));
+	NewServer_Shoot(SpawnLocation, SpawnRotation);
 }
 
 void AOD_ElementalCharacter::StopShooting()

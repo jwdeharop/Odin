@@ -34,6 +34,7 @@ void UOD_WdigetRadialProgressBar::NativeOnInitialized()
 	{
 		CompInteractionPtr->HoldInteractionStarts.BindUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionStarts);
 		CompInteractionPtr->HoldInteractionEnds.BindUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionEnds);
+		CompInteractionPtr->LostInteraction.AddUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionEnds);
 	}
 }
 

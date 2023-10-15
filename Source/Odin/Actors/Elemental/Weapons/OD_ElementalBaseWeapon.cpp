@@ -37,6 +37,24 @@ void AOD_ElementalBaseWeapon::Shoot(EOD_ElementalDamageType DamageType, const FV
 	Server_ShootAtDirection(MuzzleLocation, MuzzleRotation, CameraLocation, CameraVector);
 }
 
+void AOD_ElementalBaseWeapon::NewShoot(EOD_ElementalDamageType DamageType, const FVector& SpawnLocation, const FRotator& SpawnRotator)
+{
+	const AOD_ElementalCharacter* OwnerCharacter = Cast<AOD_ElementalCharacter>(GetOwner());
+	if (!OwnerCharacter)
+		return;
+
+	if (!ProjectileClass || !SkeletalMesh)
+		return;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+	SpawnParams.Instigator = GetOwner<APawn>();
+	if (AOD_ElementalProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AOD_ElementalProjectile>(ProjectileClass, SpawnLocation, SpawnRotator, SpawnParams))
+	{
+		SpawnedProjectile->SetCurrentDamage(OwnerCharacter->GetCurrentDamage());
+	}
+}
+
 float AOD_ElementalBaseWeapon::GetRatio() const
 {
 	return Ratio;

@@ -19,6 +19,7 @@ public:
 
 	AOD_ElementalBaseWeapon();
 	virtual void Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector, const FVector& MuzzleLocation, const FRotator& MuzzleRotation);
+	virtual void NewShoot(EOD_ElementalDamageType DamageType, const FVector& SpawnLocation ,const FRotator& SpawnRotator);
 
 	float GetRatio() const;
 	void GetMuzzleInformation(FVector& SocketLocation, FRotator& SocketRotator) const;

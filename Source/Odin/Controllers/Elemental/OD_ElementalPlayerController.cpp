@@ -10,3 +10,8 @@ float AOD_ElementalPlayerController::TakeDamage(float DamageAmount, FDamageEvent
 {
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
+
+void AOD_ElementalPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+}

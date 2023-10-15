@@ -21,7 +21,7 @@ class ODIN_API UOD_CompInteraction : public UActorComponent
 
 public:
 	FSimpleDelegate InteractionAvailable;
-	FSimpleDelegate LostInteraction;
+	FSimpleMulticastDelegate LostInteraction;
 	FSimpleDelegate HoldInteractionStarts;
 	FSimpleDelegate HoldInteractionEnds;
 
@@ -35,7 +35,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Interact")
-		float InteractDistance = 300.f;
+		float InteractDistance = 1000.f;
 
 	TWeakObjectPtr<ACharacter> OwnerCharacter = nullptr;
 	TWeakObjectPtr<AActor> CurrentInteractActor = nullptr;
