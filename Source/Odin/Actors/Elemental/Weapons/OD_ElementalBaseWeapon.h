@@ -17,7 +17,7 @@ public:
 	UFUNCTION(Server, Reliable)
 		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator, const FVector& CameraLocation, const FVector& CameraVector);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void BP_ChangeWeaponColor(EOD_ElementalDamageType DamageType);
 
 	AOD_ElementalBaseWeapon();
