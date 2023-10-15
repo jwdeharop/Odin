@@ -17,6 +17,9 @@ public:
 	UFUNCTION(Server, Reliable)
 		void Server_ShootAtDirection(const FVector SocketLocation, const FRotator SocketRotator, const FVector& CameraLocation, const FVector& CameraVector);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void BP_ChangeWeaponColor(EOD_ElementalDamageType DamageType);
+
 	AOD_ElementalBaseWeapon();
 	virtual void Shoot(EOD_ElementalDamageType DamageType, const FVector& CameraLocation, const FVector& CameraVector, const FVector& MuzzleLocation, const FRotator& MuzzleRotation);
 	virtual void NewShoot(EOD_ElementalDamageType DamageType, const FVector& SpawnLocation ,const FRotator& SpawnRotator);
@@ -25,7 +28,7 @@ public:
 	void GetMuzzleInformation(FVector& SocketLocation, FRotator& SocketRotator) const;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Elemental | Weapons")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elemental | Weapons")
 		USkeletalMeshComponent* SkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AOD_ElementalProjectile> ProjectileClass = nullptr;

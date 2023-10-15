@@ -186,10 +186,22 @@ void AOD_ElementalCharacter::PossessedBy(AController* NewController)
 	Client_PossessedBy(NewController);
 }
 
+void AOD_ElementalCharacter::OnClientStatsChanged(FOD_PlayerStats Fod_PlayerStats)
+{
+	if (!CurrentWeapon.Get())
+		return;
+
+	CurrentWeapon->BP_ChangeWeaponColor(Fod_PlayerStats.CurrentDamageType);
+}
+
 void AOD_ElementalCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	FString s;
+
+	if (AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>())
+	{
+		MyPlayerState->OnClientStatsChanged.AddUObject(this, &AOD_ElementalCharacter::OnClientStatsChanged);
+	}
 }
 
 void AOD_ElementalCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const

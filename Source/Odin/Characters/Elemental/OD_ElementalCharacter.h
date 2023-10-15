@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Odin.h"
+#include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 #include "OD_ElementalCharacter.generated.h"
 
 class UInputComponent;
@@ -121,6 +122,7 @@ protected:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void PossessedBy(AController* NewController) override;
+	void OnClientStatsChanged(FOD_PlayerStats Fod_PlayerStats);
 	virtual void OnRep_PlayerState() override;
 };
 
