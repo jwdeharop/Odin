@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 
+ODIN_API DECLARE_LOG_CATEGORY_EXTERN(DataAssetLog, Log, All);
+
 UENUM(BlueprintType)
 enum class EOD_InventoryType : uint8
 {
