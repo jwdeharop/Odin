@@ -23,13 +23,11 @@ public:
 		FLinearColor GetElementColor(EOD_ElementalDamageType ElementType) const;
 	UFUNCTION(BlueprintPure)
 		TSoftObjectPtr<UTexture2D> GetElementIcon(EOD_ElementalDamageType ElementType) const;
+	
+	const FOD_ElementIconsRelation* GetIconRelation(EOD_ElementalDamageType ElementType) const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnRep_PlayerState() override;
-
-private:
-	const FOD_ElementIconsRelation* GetIconRelation(EOD_ElementalDamageType ElementType) const;
-	
 };
 

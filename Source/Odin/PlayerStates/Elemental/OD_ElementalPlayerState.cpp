@@ -45,8 +45,8 @@ void AOD_ElementalPlayerState::BeginPlay()
 	{
 		CurrentPlayerStats.MaxHealth = 100.f;
 		CurrentPlayerStats.CurrentHealth = CurrentPlayerStats.MaxHealth;
-		CurrentPlayerStats.CurrentDamageType = EOD_ElementalDamageType::Basic;
-		CurrentPlayerStats.SecondSlot = EOD_ElementalDamageType::Basic;
+		CurrentPlayerStats.CurrentDamageType = EOD_ElementalDamageType::Synthetic;
+		CurrentPlayerStats.SecondSlot = EOD_ElementalDamageType::Synthetic;
 
 		// Just for listener servers.
 		OnRep_PlayerStats();

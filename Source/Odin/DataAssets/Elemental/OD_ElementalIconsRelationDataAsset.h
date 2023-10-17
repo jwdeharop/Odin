@@ -9,7 +9,7 @@ struct FOD_ElementIconsRelation
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-		EOD_ElementalDamageType ElementType = EOD_ElementalDamageType::Basic;
+		EOD_ElementalDamageType ElementType = EOD_ElementalDamageType::Synthetic;
 	UPROPERTY(EditDefaultsOnly)
 		TSoftObjectPtr<UTexture2D> Icon = nullptr;
 	UPROPERTY(EditDefaultsOnly)

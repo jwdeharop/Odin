@@ -2,6 +2,7 @@
 
 #include "Characters/Elemental/OD_ElementalCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "Libraries/OD_BaseLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 
 AOD_ElementalExtractionPoint::AOD_ElementalExtractionPoint()
@@ -56,10 +57,8 @@ float AOD_ElementalExtractionPoint::GetHoldInteractTime()
 
 void AOD_ElementalExtractionPoint::PrepareInteraction(bool bCanInteract)
 {
-	const APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController();
-	AOD_ElementalCharacter* LocalCharacter = LocalPlayerController ? LocalPlayerController->GetPawn<AOD_ElementalCharacter>() : nullptr;
-	if (!LocalCharacter)
-		return;
-	
-	LocalCharacter->InteractionDamageType = bCanInteract ? DamageType : EOD_ElementalDamageType::Basic;
+	if (AOD_ElementalCharacter* LocalCharacter = UOD_BaseLibrary::GetLocalPlayerCharacter(this))
+	{
+		LocalCharacter->InteractionDamageType = bCanInteract ? DamageType : EOD_ElementalDamageType::Synthetic;
+	}	
 }

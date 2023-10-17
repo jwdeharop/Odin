@@ -242,7 +242,7 @@ EOD_ElementalDamageType AOD_ElementalCharacter::GetCurrentDamage() const
 {
 	const AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>();
 	if (!MyPlayerState)
-		return EOD_ElementalDamageType::Basic;
+		return EOD_ElementalDamageType::Synthetic;
 
 	return MyPlayerState->GetCurrentDamageType();
 }

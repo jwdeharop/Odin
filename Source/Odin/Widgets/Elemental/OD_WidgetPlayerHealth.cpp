@@ -1,6 +1,7 @@
 #include "Widgets/Elemental/OD_WidgetPlayerHealth.h"
 #include "TextBlock.h"
 #include "Controllers/Elemental/OD_ElementalPlayerController.h"
+#include "Libraries/OD_BaseLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 
 void UOD_WidgetPlayerHealth::OnClientGetsPlayerState(APlayerState* PlayerState)
@@ -14,15 +15,13 @@ void UOD_WidgetPlayerHealth::OnClientGetsPlayerState(APlayerState* PlayerState)
 void UOD_WidgetPlayerHealth::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	AOD_ElementalPlayerController* PlayerController = Cast<AOD_ElementalPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (!PlayerController)
-		return;
-
-	AOD_ElementalPlayerState* PlayerState = PlayerController->GetPlayerState<AOD_ElementalPlayerState>();
+	AOD_ElementalPlayerState* PlayerState = UOD_BaseLibrary::GetLocalPlayerState(this);
 	if (!PlayerState)
 	{
-		PlayerController->OnClientGetsPlayerState.AddUObject(this, &UOD_WidgetPlayerHealth::OnClientGetsPlayerState);
+		if (AOD_ElementalPlayerController* PlayerController = UOD_BaseLibrary::GetLocalPlayerController(this))
+		{
+			PlayerController->OnClientGetsPlayerState.AddUObject(this, &UOD_WidgetPlayerHealth::OnClientGetsPlayerState);
+		}
 		return;
 	}
 

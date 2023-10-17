@@ -36,5 +36,7 @@ protected:
 		float MaxWeaponDistanceToShoot = 1000.f;
 	UPROPERTY(EditDefaultsOnly)
 		float Ratio = 0.1f;
+
+	virtual void BeginPlay() override;
 };
 
