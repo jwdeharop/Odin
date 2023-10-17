@@ -19,7 +19,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* MeshComponent = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Basic;
+		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Synthetic;
 	UPROPERTY(EditAnywhere)
 		float InteractionTime = 3.f;
 

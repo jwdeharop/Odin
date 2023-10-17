@@ -15,9 +15,9 @@ struct FOD_PlayerStats
 	UPROPERTY(BlueprintReadOnly)
 		float CurrentHealth = 0.f;
 	UPROPERTY(BlueprintReadOnly)
-		EOD_ElementalDamageType CurrentDamageType = EOD_ElementalDamageType::Basic;
+		EOD_ElementalDamageType CurrentDamageType = EOD_ElementalDamageType::Synthetic;
 	UPROPERTY(BlueprintReadOnly)
-		EOD_ElementalDamageType SecondSlot = EOD_ElementalDamageType::Basic; 
+		EOD_ElementalDamageType SecondSlot = EOD_ElementalDamageType::Synthetic; 
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnStatsChanged, FOD_PlayerStats);

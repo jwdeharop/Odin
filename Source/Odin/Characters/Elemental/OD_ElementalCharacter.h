@@ -76,7 +76,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		UUserWidget* MyHud = nullptr;
 	UPROPERTY(BlueprintReadOnly)
-		EOD_ElementalDamageType InteractionDamageType = EOD_ElementalDamageType::Basic;
+		EOD_ElementalDamageType InteractionDamageType = EOD_ElementalDamageType::Synthetic;
 		
 	FTimerHandle ShootingTimer;
 	FOnClientPossessed OnClientPossessed;

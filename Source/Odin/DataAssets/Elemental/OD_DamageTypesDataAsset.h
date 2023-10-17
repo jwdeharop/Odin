@@ -10,7 +10,7 @@ struct FOD_DamageTypeInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Basic;
+		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Synthetic;
 	UPROPERTY(EditDefaultsOnly)
 		TArray<EOD_ElementalDamageType> Nemesis;
 	UPROPERTY(EditDefaultsOnly)

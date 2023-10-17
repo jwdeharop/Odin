@@ -4,6 +4,7 @@
 #include "Components/OD_CompInteraction.h"
 #include "Controllers/Elemental/OD_ElementalPlayerController.h"
 #include "Kismet/KismetMaterialLibrary.h"
+#include "Libraries/OD_BaseLibrary.h"
 
 namespace UOD_WdigetRadialProgressBar_Consts
 {
@@ -69,7 +70,6 @@ void UOD_WdigetRadialProgressBar::HoldInteractionEnds()
 
 void UOD_WdigetRadialProgressBar::GatherCompInteractionPtr()
 {
-	const AOD_ElementalPlayerController* MyPlayerController = GetWorld()->GetFirstPlayerController<AOD_ElementalPlayerController>();
-	AOD_ElementalCharacter* MyCharacter = MyPlayerController ? MyPlayerController->GetPawn<AOD_ElementalCharacter>() : nullptr;
+	AOD_ElementalCharacter* MyCharacter = UOD_BaseLibrary::GetLocalPlayerCharacter(this);
 	CompInteractionPtr = MyCharacter ? MyCharacter->GetCompInteraction() : nullptr;
 }

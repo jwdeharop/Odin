@@ -26,7 +26,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		UStaticMeshComponent* StaticMeshComponent = nullptr;
 	
-	EOD_ElementalDamageType CurrentDamage = EOD_ElementalDamageType::Basic;
+	EOD_ElementalDamageType CurrentDamage = EOD_ElementalDamageType::Synthetic;
 
 protected:
 	UFUNCTION()

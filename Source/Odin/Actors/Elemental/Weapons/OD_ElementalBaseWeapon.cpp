@@ -65,3 +65,13 @@ void AOD_ElementalBaseWeapon::GetMuzzleInformation(FVector& SocketLocation, FRot
 	SocketLocation = SkeletalMesh->GetSocketLocation("Muzzle");
 	SocketRotator = SkeletalMesh->GetSocketRotation("Muzzle");
 }
+
+void AOD_ElementalBaseWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+	const AOD_ElementalCharacter* OwnerCharacter = Cast<AOD_ElementalCharacter>(GetOwner());
+	if (!OwnerCharacter || !OwnerCharacter->IsLocallyControlled())
+		return;
+
+	BP_ChangeWeaponColor(EOD_ElementalDamageType::Synthetic);
+}
