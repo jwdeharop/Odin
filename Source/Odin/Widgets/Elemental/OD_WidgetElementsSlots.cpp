@@ -23,6 +23,8 @@ void UOD_WidgetElementsSlots::NativeOnInitialized()
 	{
 		PlayerState->OnClientStatsChanged.AddUObject(this, &UOD_WidgetElementsSlots::OnClientStatsChanged);
 	}
+
+	SecondSlot->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UOD_WidgetElementsSlots::OnClientGetsPlayerState(APlayerState* PlayerState)

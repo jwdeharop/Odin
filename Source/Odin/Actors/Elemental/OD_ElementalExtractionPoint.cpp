@@ -2,6 +2,7 @@
 #include "Characters/Elemental/OD_ElementalCharacter.h"
 #include "Components/OD_CompInteractable.h"
 #include "Components/StaticMeshComponent.h"
+#include "Controllers/Elemental/OD_ElementalPlayerController.h"
 #include "Libraries/OD_BaseLibrary.h"
 #include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 
@@ -67,7 +68,11 @@ void AOD_ElementalExtractionPoint::BeginPlay()
 
 		if (AOD_ElementalPlayerState* LocalPLayerState = UOD_BaseLibrary::GetLocalPlayerState(this))
 		{
-			LocalPLayerState->OnClientStatsChanged.AddUObject(this, &AOD_ElementalExtractionPoint::OnClientsStatsChanged);
+			OnClientGetsPlayerState(LocalPLayerState);
+		}
+		else if (AOD_ElementalPlayerController* LocalPlayerController = UOD_BaseLibrary::GetLocalPlayerController(this))
+		{
+			LocalPlayerController->OnClientGetsPlayerState.AddUObject(this, &AOD_ElementalExtractionPoint::OnClientGetsPlayerState);
 		}
 	}
 }
@@ -93,5 +98,16 @@ void AOD_ElementalExtractionPoint::OnClientsStatsChanged(FOD_PlayerStats PlayerS
 	if (CompInteractable)
 	{
 		CompInteractable->SetCanInteract(PlayerStats.CurrentDamageType != DamageType);	
+	}
+}
+
+void AOD_ElementalExtractionPoint::OnClientGetsPlayerState(APlayerState* PlayerState)
+{
+	if (AOD_ElementalPlayerState* ElementalPlayerState = Cast<AOD_ElementalPlayerState>(PlayerState))
+	{
+		if (!ElementalPlayerState->OnClientStatsChanged.IsBoundToObject(this))
+		{
+			ElementalPlayerState->OnClientStatsChanged.AddUObject(this, &AOD_ElementalExtractionPoint::OnClientsStatsChanged);
+		}
 	}
 }

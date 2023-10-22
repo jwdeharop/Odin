@@ -41,5 +41,6 @@ private:
 	void InteractionStartedOnServer(bool bSucceed);
 	void InteractionEndsClient(bool bSucceed);
 	void OnClientsStatsChanged(FOD_PlayerStats PlayerStats);
+	void OnClientGetsPlayerState(APlayerState* PlayerState);
 };
 
