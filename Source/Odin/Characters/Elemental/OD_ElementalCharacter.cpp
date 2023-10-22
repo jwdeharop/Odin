@@ -161,6 +161,7 @@ void AOD_ElementalCharacter::OnRep_PlayerState()
 	if (AOD_ElementalPlayerState* MyPlayerState = GetPlayerState<AOD_ElementalPlayerState>())
 	{
 		MyPlayerState->OnClientStatsChanged.AddUObject(this, &AOD_ElementalCharacter::OnClientStatsChanged);
+		OnClientStatsChanged(MyPlayerState->GetPlayerStats());
 	}
 }
 

@@ -9,6 +9,7 @@ void UOD_WidgetPlayerHealth::OnClientGetsPlayerState(APlayerState* PlayerState)
 	if (AOD_ElementalPlayerState* LocalPlayerState = Cast<AOD_ElementalPlayerState>(PlayerState))
 	{
 		LocalPlayerState->OnClientStatsChanged.AddUObject(this, &UOD_WidgetPlayerHealth::OnClientStatsChanged);
+		OnClientStatsChanged(LocalPlayerState->GetPlayerStats());
 	}
 }
 

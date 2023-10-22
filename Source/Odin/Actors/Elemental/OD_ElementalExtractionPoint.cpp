@@ -108,6 +108,7 @@ void AOD_ElementalExtractionPoint::OnClientGetsPlayerState(APlayerState* PlayerS
 		if (!ElementalPlayerState->OnClientStatsChanged.IsBoundToObject(this))
 		{
 			ElementalPlayerState->OnClientStatsChanged.AddUObject(this, &AOD_ElementalExtractionPoint::OnClientsStatsChanged);
+			OnClientsStatsChanged(ElementalPlayerState->GetPlayerStats());
 		}
 	}
 }

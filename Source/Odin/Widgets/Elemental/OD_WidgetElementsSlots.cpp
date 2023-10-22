@@ -34,6 +34,7 @@ void UOD_WidgetElementsSlots::OnClientGetsPlayerState(APlayerState* PlayerState)
 		if (!ElementalPlayerState->OnClientStatsChanged.IsBoundToObject(this))
 		{
 			ElementalPlayerState->OnClientStatsChanged.AddUObject(this, &UOD_WidgetElementsSlots::OnClientStatsChanged);
+			OnClientStatsChanged(ElementalPlayerState->GetPlayerStats());
 		}
 	}
 }
