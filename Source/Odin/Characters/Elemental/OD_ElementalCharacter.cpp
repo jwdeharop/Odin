@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/Elemental/OD_CompDamage.h"
 #include "Components/OD_CompInteraction.h"
+#include "Components/OD_CompInteractable.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Libraries/OD_NetLibrary.h"
@@ -13,7 +14,6 @@
 #include "UserWidget.h"
 #include "Controllers/Elemental/OD_ElementalPlayerController.h"
 #include "Interfaces/OD_InteractionInterface.h"
-#include "Kismet/GameplayStatics.h"
 
 namespace AOD_ElementalCharacter_Consts
 {
@@ -22,46 +22,6 @@ namespace AOD_ElementalCharacter_Consts
 	constexpr float FullDamageMultiplier = 1.f;
 	constexpr float PreyDamageMultiplier = 2.f;
 	constexpr float BaseDamage = 10.f;
-}
-
-void AOD_ElementalCharacter::OnRep_CurrentWeapon()
-{
-	if (CurrentWeapon.Get())
-	{
-		//CurrentWeapon->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepWorldTransform, "GripPoint");
-	}
-}
-
-void AOD_ElementalCharacter::Server_StopInteraction_Implementation(AActor* InteractingObject)
-{
-	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(InteractingObject);
-	if (!InteractionInterface)
-		return;
-
-	InteractionInterface->CancelInteraction();
-}
-
-void AOD_ElementalCharacter::Client_OnInteractionSuccess_Implementation()
-{
-	if (CompInteraction)
-	{
-		CompInteraction->OnInteractionSucess();
-	}
-}
-
-void AOD_ElementalCharacter::OnInteractionSucess()
-{
-	Client_OnInteractionSuccess();
-}
-
-void AOD_ElementalCharacter::Server_StartInteraction_Implementation(AActor* InteractingObject)
-{
-	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(InteractingObject);
-	if (!InteractionInterface)
-		return;
-
-	InteractionInterface->OnInteractionSucess.BindUObject(this, &AOD_ElementalCharacter::OnInteractionSucess);
-	InteractionInterface->StartInteraction(this);
 }
 
 AOD_ElementalCharacter::AOD_ElementalCharacter()
@@ -124,7 +84,7 @@ void AOD_ElementalCharacter::BeginPlay()
 
 	if (CompInteraction)
 	{
-		CompInteraction->InteractionAvailable.BindUObject(this, &AOD_ElementalCharacter::OnInteractionAvailable);
+		CompInteraction->InteractionAvailable.AddUObject(this, &AOD_ElementalCharacter::OnInteractionAvailable);
 		CompInteraction->LostInteraction.AddUObject(this, &AOD_ElementalCharacter::OnInteractionLost);
 	}
 }
@@ -328,7 +288,6 @@ void AOD_ElementalCharacter::StartInteraction()
 {
 	if (CompInteraction)
 	{
-		Server_StartInteraction(CompInteraction->GetCurrentInteractActor());
 		CompInteraction->StartInteraction();
 	}
 }
@@ -337,8 +296,7 @@ void AOD_ElementalCharacter::StopInteraction()
 {
 	if (CompInteraction)
 	{
-		Server_StopInteraction(CompInteraction->GetCurrentInteractActor());
-		CompInteraction->StopInteraction();
+		CompInteraction->StopInteraction(false);
 	}
 }
 
@@ -356,7 +314,7 @@ void AOD_ElementalCharacter::OnInteractionAvailable()
 	BP_ChangeInteractionWidgetInformation(true);
 }
 
-void AOD_ElementalCharacter::OnInteractionLost()
+void AOD_ElementalCharacter::OnInteractionLost(AActor* LostInteractorActor)
 {
 	BP_ChangeInteractionWidgetInformation(false);
 }

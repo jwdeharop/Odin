@@ -23,6 +23,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 		UImage* ImageRound = nullptr;
 
+	void OnInteractionAvailable();
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -36,6 +37,8 @@ private:
 	float CurrentProgressDuration = 0.f;
 
 	void HoldInteractionStarts();
-	void HoldInteractionEnds();
+	void HoldInteractionEnds(bool bSucceed);
 	void GatherCompInteractionPtr();
+	void OnInteractionLost(AActor* Actor);
+
 };

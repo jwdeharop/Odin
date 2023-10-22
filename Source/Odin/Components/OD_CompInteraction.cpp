@@ -1,55 +1,40 @@
 #include "Components/OD_CompInteraction.h"
-
-#include "OD_CollisionChannels.h"
-#include "Camera/CameraComponent.h"
 #include "Characters/Elemental/OD_ElementalCharacter.h"
+#include "Components/OD_CompInteractable.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/OD_InteractionInterface.h"
+#include "OD_CollisionChannels.h"
 
 UOD_CompInteraction::UOD_CompInteraction(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UOD_CompInteraction::OnInteractionSucess()
-{
-	StopInteraction();
-}
-
-void UOD_CompInteraction::StartInteraction()
+void UOD_CompInteraction::StartInteraction() const
 {
 	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
-	if (!InteractionInterface)
+	UOD_CompInteractable* CompInteractable = InteractionInterface ? InteractionInterface->GetCompInteractable() : nullptr;
+	if (!CompInteractable)
 		return;
 
-	if (InteractionInterface->IsHoldInteraction())
-	{
-		HoldInteractionStarts.ExecuteIfBound();
-	}
+	CompInteractable->ClientInteractionStart();
 }
 
-void UOD_CompInteraction::StopInteraction()
+void UOD_CompInteraction::StopInteraction(bool bSucceed) const
 {
 	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
-	if (!InteractionInterface)
+	UOD_CompInteractable* CompInteractable = InteractionInterface ? InteractionInterface->GetCompInteractable() : nullptr;
+	if (!CompInteractable)
 		return;
 
-	if (InteractionInterface->IsHoldInteraction())
-	{
-		HoldInteractionEnds.ExecuteIfBound();
-	}
-}
-
-bool UOD_CompInteraction::IsHoldInteractionObject() const
-{
-	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
-	return InteractionInterface && InteractionInterface->IsHoldInteraction();
+	CompInteractable->ClientInteractionEnds(bSucceed);
 }
 
 float UOD_CompInteraction::GetObjectHoldInteractionTime() const
 {
 	IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get());
-	return InteractionInterface ? InteractionInterface->GetHoldInteractTime() : 0.f;
+	const UOD_CompInteractable* CompInteractable = InteractionInterface ? InteractionInterface->GetCompInteractable() : nullptr;
+	return CompInteractable ? CompInteractable->GetHoldInteractTime() : 0.f;
 }
 
 void UOD_CompInteraction::BeginPlay()
@@ -72,7 +57,7 @@ void UOD_CompInteraction::TickComponent(float DeltaTime, ELevelTick TickType, FA
 			// Notify the object that is being interacted with.
 			constexpr bool bCanPrepareInteraction = true;
 			InteractionInterface->PrepareInteraction(bCanPrepareInteraction);
-			InteractionAvailable.ExecuteIfBound();
+			InteractionAvailable.Broadcast();
 			return;
 		}
 
@@ -81,8 +66,9 @@ void UOD_CompInteraction::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 	if (CurrentInteractActor.Get() && (InteractionType == EOD_InteractionType::InteractionLost || InteractionType == EOD_InteractionType::NoInteraction))
 	{
+		AActor* LastActor = CurrentInteractActor.Get();
 		ResetInteraction(OutHit.GetActor());
-		LostInteraction.Broadcast();
+		LostInteraction.Broadcast(LastActor);
 	}
 }
 
@@ -119,6 +105,7 @@ void UOD_CompInteraction::ResetInteraction(const AActor* ActorToReset)
 {
 	if (ActorToReset != CurrentInteractActor)
 	{
+		StopInteraction(false);
 		if (IOD_InteractionInterface* InteractionInterface = Cast<IOD_InteractionInterface>(CurrentInteractActor.Get()))
 		{
 			// Notify the object that the interaction has ended.
@@ -128,3 +115,4 @@ void UOD_CompInteraction::ResetInteraction(const AActor* ActorToReset)
 		CurrentInteractActor.Reset();
 	}
 }
+

@@ -14,23 +14,22 @@ enum class EOD_InteractionType : uint8
 	NoInteraction
 };
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FInteractionLost, AActor*);
 UCLASS()
 class ODIN_API UOD_CompInteraction : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	FSimpleDelegate InteractionAvailable;
-	FSimpleMulticastDelegate LostInteraction;
+	FSimpleMulticastDelegate InteractionAvailable;
+	FInteractionLost LostInteraction;
 	FSimpleDelegate HoldInteractionStarts;
 	FSimpleDelegate HoldInteractionEnds;
 
 	UOD_CompInteraction(const FObjectInitializer& ObjectInitializer);
-	void OnInteractionSucess();
-	void StartInteraction();
-	void StopInteraction();;
+	void StartInteraction() const;
+	void StopInteraction(bool bSucceed) const;
 	AActor* GetCurrentInteractActor() const { return CurrentInteractActor.Get(); }
-	bool IsHoldInteractionObject() const;
 	float GetObjectHoldInteractionTime() const;
 
 protected:
