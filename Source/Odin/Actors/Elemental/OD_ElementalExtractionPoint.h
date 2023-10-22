@@ -3,6 +3,7 @@
 #include "Odin.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/OD_InteractionInterface.h"
+#include "PlayerStates/Elemental/OD_ElementalPlayerState.h"
 #include "OD_ElementalExtractionPoint.generated.h"
 
 class UStaticMeshComponent;
@@ -13,6 +14,7 @@ class AOD_ElementalExtractionPoint : public AActor, public IOD_InteractionInterf
 	GENERATED_BODY()
 public:
 	AOD_ElementalExtractionPoint();
+	virtual UOD_CompInteractable* GetCompInteractable() override;
 
 protected:
 
@@ -20,22 +22,25 @@ protected:
 		UStaticMeshComponent* MeshComponent = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EOD_ElementalDamageType DamageType = EOD_ElementalDamageType::Synthetic;
-	UPROPERTY(EditAnywhere)
-		float InteractionTime = 3.f;
+	UPROPERTY(EditDefaultsOnly)
+		UOD_CompInteractable* CompInteractable = nullptr;
 
 	FTimerHandle InteractionTimer;
-
-	UFUNCTION(Client, Reliable)
-		void Client_InteractionSuccessful();
 
 	virtual void StartInteraction(ACharacter* InteractionInstigator) override;
 	virtual void CancelInteraction() override;
 	virtual void InteractionSuccessful() override;
-	virtual float GetHoldInteractTime() override;
 	virtual void PrepareInteraction(bool bCanInteract) override;
+
+	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY(Transient)
 		ACharacter* MyInstigator = nullptr;
+
+	void InteractionStartedOnServer(bool bSucceed);
+	void InteractionEndsClient(bool bSucceed);
+	void OnClientsStatsChanged(FOD_PlayerStats PlayerStats);
+	void OnClientGetsPlayerState(APlayerState* PlayerState);
 };
 

@@ -1,8 +1,10 @@
 #include "Widgets/Elemental/OD_WidgetRadialProgressBar.h"
 #include "Image.h"
 #include "Characters/Elemental/OD_ElementalCharacter.h"
+#include "Components/OD_CompInteractable.h"
 #include "Components/OD_CompInteraction.h"
 #include "Controllers/Elemental/OD_ElementalPlayerController.h"
+#include "Interfaces/OD_InteractionInterface.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Libraries/OD_BaseLibrary.h"
 
@@ -20,6 +22,17 @@ void UOD_WdigetRadialProgressBar::SetPercentage(float Percentage) const
 	DynamicInstance->SetScalarParameterValue(UOD_WdigetRadialProgressBar_Consts::PercentageValueStr, Percentage);
 }
 
+void UOD_WdigetRadialProgressBar::OnInteractionAvailable()
+{
+	IOD_InteractionInterface* InteractionActor = Cast<IOD_InteractionInterface>(CompInteractionPtr->GetCurrentInteractActor());
+	UOD_CompInteractable* CompInteractable = InteractionActor ? InteractionActor->GetCompInteractable() : nullptr;
+	if (CompInteractable && CompInteractable->IsHoldInteraction())
+	{
+		CompInteractable->OnInteractionHoldStartsClient.AddUObject(this,&UOD_WdigetRadialProgressBar::HoldInteractionStarts);
+		CompInteractable->OnInteractionEndClient.AddUObject(this,&UOD_WdigetRadialProgressBar::HoldInteractionEnds);
+	}
+}
+
 void UOD_WdigetRadialProgressBar::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -33,9 +46,8 @@ void UOD_WdigetRadialProgressBar::NativeOnInitialized()
 	GatherCompInteractionPtr();
 	if (CompInteractionPtr)
 	{
-		CompInteractionPtr->HoldInteractionStarts.BindUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionStarts);
-		CompInteractionPtr->HoldInteractionEnds.BindUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionEnds);
-		CompInteractionPtr->LostInteraction.AddUObject(this, &UOD_WdigetRadialProgressBar::HoldInteractionEnds);
+		CompInteractionPtr->InteractionAvailable.AddUObject(this, &UOD_WdigetRadialProgressBar::OnInteractionAvailable);
+		CompInteractionPtr->LostInteraction.AddUObject(this, &UOD_WdigetRadialProgressBar::OnInteractionLost);
 	}
 }
 
@@ -61,7 +73,7 @@ void UOD_WdigetRadialProgressBar::HoldInteractionStarts()
 	bCanUpdateProgress = true;
 }
 
-void UOD_WdigetRadialProgressBar::HoldInteractionEnds()
+void UOD_WdigetRadialProgressBar::HoldInteractionEnds(bool bSucceed)
 {
 	CurrentProgressDuration = 0.f;
 	bCanUpdateProgress = false;
@@ -72,4 +84,15 @@ void UOD_WdigetRadialProgressBar::GatherCompInteractionPtr()
 {
 	AOD_ElementalCharacter* MyCharacter = UOD_BaseLibrary::GetLocalPlayerCharacter(this);
 	CompInteractionPtr = MyCharacter ? MyCharacter->GetCompInteraction() : nullptr;
+}
+
+void UOD_WdigetRadialProgressBar::OnInteractionLost(AActor* Actor)
+{
+	IOD_InteractionInterface* InteractionActor = Cast<IOD_InteractionInterface>(Actor);
+    UOD_CompInteractable* CompInteractable = InteractionActor ? InteractionActor->GetCompInteractable() : nullptr;
+    if (CompInteractable && CompInteractable->IsHoldInteraction())
+    {
+    	CompInteractable->OnInteractionStartsClient.RemoveAll(this);
+    	CompInteractable->OnInteractionEndClient.RemoveAll(this);
+    }
 }

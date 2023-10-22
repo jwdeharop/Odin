@@ -37,6 +37,7 @@ public:
 
 	EOD_ElementalDamageType GetCurrentDamageType() const;
 	void LocalTakeDamage(float Damage);
+	const FOD_PlayerStats& GetPlayerStats() const;
 	
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerStats)

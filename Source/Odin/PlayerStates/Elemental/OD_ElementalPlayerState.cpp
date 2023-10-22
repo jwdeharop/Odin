@@ -29,7 +29,11 @@ void AOD_ElementalPlayerState::LocalTakeDamage(float Damage)
 {
 	CurrentPlayerStats.CurrentHealth -= Damage;
 	OnRep_PlayerStats();
-	OnClientStatsChanged.Broadcast(CurrentPlayerStats);
+}
+
+const FOD_PlayerStats& AOD_ElementalPlayerState::GetPlayerStats() const
+{
+	return CurrentPlayerStats;
 }
 
 void AOD_ElementalPlayerState::OnRep_PlayerStats() const

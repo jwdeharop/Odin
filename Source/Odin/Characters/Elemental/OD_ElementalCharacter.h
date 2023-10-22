@@ -55,23 +55,11 @@ class AOD_ElementalCharacter : public ACharacter
 		UAnimMontage* ShootMontage = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		UOD_CompDamage* CompDamage = nullptr;
-	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeapon)
+	UPROPERTY(Replicated)
 		TWeakObjectPtr<AOD_ElementalBaseWeapon> CurrentWeapon = nullptr;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<UUserWidget> HUD = nullptr;
 	
-	UFUNCTION()
-		void OnRep_CurrentWeapon();
-
-	UFUNCTION(Server, Reliable)
-		void Server_StartInteraction(AActor* InteractingObject);
-	UFUNCTION(Server, Reliable)
-		void Server_StopInteraction(AActor* InteractingObject);
-	UFUNCTION(Client, Reliable)
-		void Client_OnInteractionSuccess();
-
-	void OnInteractionSucess();
-
 public:
 	UPROPERTY(BlueprintReadWrite)
 		UUserWidget* MyHud = nullptr;
@@ -115,7 +103,7 @@ protected:
 	void ChangeDT();
 
 	void OnInteractionAvailable();
-	void OnInteractionLost();
+	void OnInteractionLost(AActor* LostInteractorActor);
 
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
