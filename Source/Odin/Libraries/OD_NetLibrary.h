@@ -18,5 +18,4 @@ public:
 		static bool IsDedicatedServer(const UObject* WorldContextObject);
 	UFUNCTION(BlueprintPure, Category = "Odin Net Library", meta = (WorldContext = "WorldContextObject"))
 		static bool IsSimulatedClient(const APawn* Pawn);
-	static APlayerController* GetMainController(const UObject* WorldContextObject);
 };
